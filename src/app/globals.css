@@ -1,0 +1,239 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------
+   VNT GROUP — design tokens
+
+   The site reads light: warm washi paper as the page surface, sumi ink
+   as the text. `ink` and `washi` keep their physical meaning throughout,
+   so sections laid over photography can go on using a dark ink scrim
+   with washi text while the rest of the page stays on paper.
+------------------------------------------------------------------- */
+@theme {
+  /* Page surfaces */
+  --color-page: #faf8f4;
+  --color-page-2: #f1ece2;
+  --color-page-3: #e7e0d2;
+
+  /* Ink — text on paper, and scrims over photography */
+  --color-ink: #15151a;
+  --color-ink-soft: #24242c;
+  --color-ink-mute: #3a3a44;
+
+  /* Washi — text on top of ink */
+  --color-washi: #f8f5f0;
+  --color-washi-dim: #e8e2d7;
+
+  --color-stone: #6f6862;
+  --color-stone-dim: #948d85;
+
+  /* Brass reads as the accent in both directions; the lit tone is for
+     placement over photography, where the darker one loses its edge. */
+  --color-brass: #8a6a2a;
+  --color-brass-lit: #d9bd7e;
+
+  --color-vermilion: #9c3d2e;
+
+  /* The wordmark's own red, taken from the supplied VNT.svg. */
+  --color-brand: #9e2121;
+
+  --font-display: var(--font-tenor), 'Tenor Sans', Georgia, serif;
+  --font-mincho: var(--font-shippori), 'Shippori Mincho', 'Noto Serif JP', serif;
+  --font-sans: var(--font-noto-sans), 'Noto Sans JP', system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+
+  --spacing-gutter: clamp(1.25rem, 5vw, 5rem);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --header-h: 5rem;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    background-color: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: 'palt' 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--color-brass);
+    color: var(--color-washi);
+  }
+
+  /* A click on static copy must never leave a blinking caret behind (Chrome
+     draws one on any text with caret browsing on). Form fields keep theirs. */
+  body {
+    caret-color: transparent;
+  }
+  input,
+  textarea,
+  select,
+  [contenteditable]:not([contenteditable='false']) {
+    caret-color: auto;
+  }
+
+  /* Lenis */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-page-2);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-page-3);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-stone-dim);
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Native select arrow removal — we draw our own. */
+  select {
+    appearance: none;
+  }
+}
+
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: 90rem;
+    margin-inline: auto;
+    padding-inline: var(--spacing-gutter);
+  }
+
+  .shell-wide {
+    width: 100%;
+    max-width: 110rem;
+    margin-inline: auto;
+    padding-inline: var(--spacing-gutter);
+  }
+
+  /* Display type: EN headings in Tenor Sans, generous tracking. */
+  .type-display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    line-height: 1.05;
+  }
+
+  .type-mincho {
+    font-family: var(--font-mincho);
+    font-weight: 400;
+    line-height: 1.75;
+    letter-spacing: 0.04em;
+  }
+
+  .type-eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--color-brass);
+  }
+
+  /* Eyebrow placed over photography. */
+  .type-eyebrow-lit {
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--color-brass-lit);
+  }
+
+  .type-body {
+    line-height: 2;
+    letter-spacing: 0.03em;
+    color: color-mix(in srgb, var(--color-ink) 74%, transparent);
+    font-size: 0.9375rem;
+  }
+
+  /* Thin brass hairline used as a section divider. */
+  .rule {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--color-brass) 45%, transparent) 18%,
+      color-mix(in srgb, var(--color-brass) 45%, transparent) 82%,
+      transparent
+    );
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .writing-vertical {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  /* Paper tooth. Sits over paper surfaces, so it multiplies rather than
+     overlays — an overlay blend washes out on a light ground. */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Same tooth for panels that stay dark (menu, media scrims). */
+  .grain-dark::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
