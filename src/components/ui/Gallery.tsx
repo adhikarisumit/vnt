@@ -5,9 +5,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { RevealImage } from '@/components/motion/Reveal';
 
-export type GalleryItem = { src: string; caption: string };
+/** `caption` is optional: photos taken from the live site carry no captions. */
+export type GalleryItem = { src: string; alt?: string; caption?: string };
 
-/** Masonry-ish grid that opens into a keyboard-navigable lightbox. */
+/** Grid of photographs that opens into a keyboard-navigable lightbox. */
 export function Gallery({ items, closeLabel }: { items: GalleryItem[]; closeLabel: string }) {
   const [open, setOpen] = useState<number | null>(null);
 
@@ -31,6 +32,8 @@ export function Gallery({ items, closeLabel }: { items: GalleryItem[]; closeLabe
     };
   }, [open, step]);
 
+  const label = (item: GalleryItem) => item.caption ?? item.alt ?? '';
+
   return (
     <>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
@@ -40,19 +43,23 @@ export function Gallery({ items, closeLabel }: { items: GalleryItem[]; closeLabe
               type="button"
               onClick={() => setOpen(i)}
               className="relative block aspect-[4/5] w-full overflow-hidden"
-              aria-label={item.caption}
+              aria-label={label(item)}
             >
               <Image
                 src={item.src}
-                alt={item.caption}
+                alt={label(item)}
                 fill
                 sizes="(max-width: 768px) 50vw, 25vw"
                 className="object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-107"
               />
-              <span className="absolute inset-0 bg-linear-to-t from-ink/75 via-transparent to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-95" />
-              <span className="absolute right-4 bottom-4 left-4 text-left text-[0.6875rem] tracking-[0.18em] text-washi/85 uppercase">
-                {item.caption}
-              </span>
+              {item.caption && (
+                <>
+                  <span className="absolute inset-0 bg-linear-to-t from-ink/75 via-transparent to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-95" />
+                  <span className="absolute right-4 bottom-4 left-4 text-left text-[0.6875rem] tracking-[0.18em] text-washi/85 uppercase">
+                    {item.caption}
+                  </span>
+                </>
+              )}
             </button>
           </RevealImage>
         ))}
@@ -86,20 +93,13 @@ export function Gallery({ items, closeLabel }: { items: GalleryItem[]; closeLabe
               onClick={(e) => e.stopPropagation()}
             >
               <div className="relative aspect-[3/2] w-full">
-                <Image
-                  src={items[open].src}
-                  alt={items[open].caption}
-                  fill
-                  sizes="90vw"
-                  className="object-contain"
-                  priority
-                />
+                <Image src={items[open].src} alt={label(items[open])} fill sizes="90vw" className="object-contain" priority />
               </div>
               <figcaption className="mt-5 flex items-center justify-between text-[0.6875rem] tracking-[0.2em] text-washi/60 uppercase">
                 <button type="button" onClick={() => step(-1)} className="hover:text-brass-lit">
                   ← Prev
                 </button>
-                <span>{items[open].caption}</span>
+                <span>{items[open].caption ?? `${open + 1} / ${items.length}`}</span>
                 <button type="button" onClick={() => step(1)} className="hover:text-brass-lit">
                   Next →
                 </button>

@@ -14,8 +14,6 @@ const staticPaths = [
   '/reservation',
   '/contact',
   '/news',
-  '/recruit',
-  '/privacy',
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

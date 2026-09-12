@@ -55,9 +55,9 @@ export const companyFacts: Fact[] = [
 
 /** Revenue by fiscal year (December close), in JPY. */
 export const revenue = [
-  { year: { ja: '令和4年度 12月期', en: 'FY2022 (Dec)' } satisfies L10n, value: 620_000_000 },
-  { year: { ja: '令和5年度 12月期', en: 'FY2023 (Dec)' } satisfies L10n, value: 449_000_000 },
-  { year: { ja: '令和6年度 12月期', en: 'FY2024 (Dec)' } satisfies L10n, value: 520_000_000 },
+  { year: { ja: '令和4年度12月期実績', en: 'FY2022 (Dec) results' } satisfies L10n, value: 620_000_000 },
+  { year: { ja: '令和5年度12月期実績', en: 'FY2023 (Dec) results' } satisfies L10n, value: 449_000_000 },
+  { year: { ja: '令和6年度12月期実績', en: 'FY2024 (Dec) results' } satisfies L10n, value: 520_000_000 },
 ];
 
 export const businessScope: L10n[] = [
@@ -70,10 +70,11 @@ export const businessScope: L10n[] = [
   { ja: '貿易業のコンサルティング', en: 'Trade consulting' },
   { ja: '国際留学のコンサルティング', en: 'International study-abroad consulting' },
   {
-    ja: 'メディカルツーリズム（医療観光）に関する情報提供サービス及びツアーの企画及び運営',
+    ja: 'メディカルツーリズム(医療観光)に関する情報提供サービス及びツアーの企画及び運営',
     en: 'Information services, tour planning and operation for medical tourism',
   },
-  { ja: 'ドラッグストア及びコンビニエンスストアーの経営', en: 'Operation of drugstores and convenience stores' },
+  // Wording as registered on the live site (「ドラックストア」「コンビニエンスストアー」).
+  { ja: 'ドラックストア及びコンビニエンスストアーの経営', en: 'Operation of drugstores and convenience stores' },
   { ja: 'イベントの企画、制作、管理、運営及びそれらの受託', en: 'Planning, production, management and operation of events' },
   {
     ja: '医薬品、医薬部外品及び化粧品の開発、製造、販売及び輸出入',
@@ -99,5 +100,5 @@ export const licenses: L10n[] = [
     ja: '古物商許可証　東京都公安委員会　第307762016250号',
     en: 'Antique dealer licence — Tokyo Metropolitan Public Safety Commission No. 307762016250',
   },
-  { ja: '酒類販売業免許　葛法第499号', en: 'Liquor sales licence — No. Katsuho 499' },
+  { ja: '酒類販売業免許葛法　第499号', en: 'Liquor sales licence — No. Katsuho 499' },
 ];

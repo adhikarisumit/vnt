@@ -1,14 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { AnimatePresence, motion } from 'motion/react';
 
 import { Checkbox, Field, Select, TextArea, TextInput } from './Field';
 import { DatePicker } from './DatePicker';
 import { facilities, reservationSchema } from '@/lib/schemas';
 import { getDictionary } from '@/content/dictionary';
-import { localePath, type Locale } from '@/lib/i18n';
+import type { Locale } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 type Values = {
@@ -415,18 +414,11 @@ export function ReservationForm({ locale }: { locale: Locale }) {
                 <Checkbox
                   checked={values.agree}
                   onChange={(e) => set('agree', e.target.checked)}
-                  label={
-                    <>
-                      <Link href={localePath(locale, '/privacy')} className="text-brass underline-offset-4 hover:underline">
-                        {dict.privacy.title}
-                      </Link>
-                      {locale === 'ja' ? 'に同意する' : ' — I agree'}
-                    </>
-                  }
+                  label={dict.reservation.agree}
                 />
                 {errors.agree && <p className="text-xs text-vermilion">{errors.agree}</p>}
 
-                <p className="border-l border-brass/40 pl-5 text-[0.75rem] leading-relaxed text-stone">
+                <p className="border-l border-brass/40 pl-5 text-[0.75rem] leading-relaxed whitespace-pre-line text-stone">
                   {dict.reservation.disclaimer}
                 </p>
 

@@ -19,12 +19,13 @@ export const facilities: {
   en: string;
   kind: 'hotel' | 'food' | 'other';
 }[] = [
-  { id: 'fuji-hotel', area: 'FUJI', ja: '富士プレミアムホテル', en: 'Fuji Premium Hotel', kind: 'hotel' },
-  { id: 'nagoya-hotel', area: 'NAGOYA', ja: '名古屋プレミアムホテル', en: 'Nagoya Premium Hotel', kind: 'hotel' },
-  { id: 'toji-hotel', area: 'KYOTO', ja: '京都 プレミアム東寺ホテル', en: 'Kyoto, Premium Toji Hotel', kind: 'hotel' },
-  { id: 'fuji-restaurant', area: 'FUJI', ja: '富士エリア レストラン', en: 'Fujiyoshida / Kawaguchiko Restaurant', kind: 'food' },
-  { id: 'geisyatei', area: 'TOKYO', ja: '東京浅草 芸者亭', en: 'Tokyo Asakusa, Geisha-tei', kind: 'food' },
-  { id: 'kyoto-restaurant', area: 'KYOTO', ja: '京都エリア レストラン', en: 'Kyoto area Restaurant', kind: 'food' },
+  // Labels as on the live reservation form.
+  { id: 'fuji-hotel', area: 'FUJI', ja: '【HOTEL】富士プレミアムホテル（Fuji Premium Hotel）', en: '[HOTEL] Fuji Premium Hotel', kind: 'hotel' },
+  { id: 'nagoya-hotel', area: 'NAGOYA', ja: '【HOTEL】名古屋プレミアムホテル（Nagoya Premium Hotel）', en: '[HOTEL] Nagoya Premium Hotel', kind: 'hotel' },
+  { id: 'toji-hotel', area: 'KYOTO', ja: '【HOTEL】京都, プレミアム東寺ホテル（Kyoto, Premium Toji Hotel）', en: '[HOTEL] Kyoto, Premium Toji Hotel', kind: 'hotel' },
+  { id: 'fuji-restaurant', area: 'FUJI', ja: '【FOOD】富士エリアレストラン（Fujiyoshida, Kawaguchiko areas Restaurant)', en: '[FOOD] Fujiyoshida, Kawaguchiko areas Restaurant', kind: 'food' },
+  { id: 'geisyatei', area: 'TOKYO', ja: '【FOOD&SHOW】東京浅草, 芸者亭（Tokyo Asakusa, Geisya-tei）', en: '[FOOD&SHOW] Tokyo Asakusa, Geisya-tei', kind: 'food' },
+  { id: 'kyoto-restaurant', area: 'KYOTO', ja: '【FOOD】京都エリアレストラン（Kyoto areas Restaurant)', en: '[FOOD] Kyoto areas Restaurant', kind: 'food' },
   { id: 'other', area: '—', ja: 'その他', en: 'Other', kind: 'other' },
 ];
 

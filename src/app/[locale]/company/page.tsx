@@ -95,10 +95,9 @@ export default async function CompanyPage({ params }: { params: Promise<{ locale
           <SectionHeading
             eyebrow="Performance"
             title={active === 'ja' ? '売上実績' : 'Revenue'}
-            lead={active === 'ja' ? '12月期決算・単位：百万円' : 'Fiscal year ending December, in millions of yen.'}
           />
           <div className="mt-14">
-            <RevenueChart data={revenue.map((r) => ({ label: t(r.year, active), value: r.value }))} />
+            <RevenueChart locale={active} data={revenue.map((r) => ({ label: t(r.year, active), value: r.value }))} />
           </div>
         </div>
       </section>

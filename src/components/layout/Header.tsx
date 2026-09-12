@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'motion/react';
-import { navigation, site } from '@/content/site';
+import { headerNav, site } from '@/content/site';
 import { localePath, t, type Locale } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { MenuOverlay } from './MenuOverlay';
@@ -20,7 +20,7 @@ const barOpen = [
   { top: '50%', width: '100%', rotate: -45, opacity: 1 },
 ];
 
-export function Header({ locale, labels }: { locale: Locale; labels: { menu: string; close: string; reserve: string } }) {
+export function Header({ locale, labels }: { locale: Locale; labels: { menu: string; close: string; reserve: string; contact: string } }) {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -74,10 +74,10 @@ export function Header({ locale, labels }: { locale: Locale; labels: { menu: str
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-9 lg:flex">
-            {navigation.slice(0, 4).map((item) => (
+          <nav className="hidden items-center gap-7 lg:flex xl:gap-9">
+            {headerNav.map((item) => (
               <Link
-                key={item.href}
+                key={item.href + item.label.ja}
                 href={localePath(locale, item.href)}
                 className={cn(
                   'group relative text-[0.75rem] tracking-[0.2em] uppercase transition-colors duration-400',
@@ -116,6 +116,16 @@ export function Header({ locale, labels }: { locale: Locale; labels: { menu: str
               )}
             >
               {labels.reserve}
+            </Link>
+
+            <Link
+              href={localePath(locale, '/contact')}
+              className={cn(
+                'hidden px-6 py-2.5 text-[0.6875rem] tracking-[0.2em] uppercase transition-colors duration-400 lg:inline-block',
+                onMedia ? 'bg-washi/90 text-ink hover:bg-brass-lit' : 'bg-ink text-page hover:bg-brass',
+              )}
+            >
+              {labels.contact}
             </Link>
 
             <button

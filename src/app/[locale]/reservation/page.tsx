@@ -37,18 +37,20 @@ export default async function ReservationPage({ params }: { params: Promise<{ lo
       body: dict.reservation.hotelBody,
       image: '/images/fuji/fuji-03.webp',
       href: '/hotels',
+      cta: dict.reservation.detail,
     },
     {
       title: dict.reservation.restaurantTitle,
       body: dict.reservation.restaurantBody,
       image: '/images/reservation/res-01.webp',
-      href: '/dining',
+      href: '#form',
     },
     {
       title: dict.reservation.showTitle,
       body: dict.reservation.showBody,
       image: '/images/reservation/res-02.webp',
-      href: '/dining/geisyatei',
+      href: '#form',
+      cta: dict.reservation.geishaDetail,
     },
   ];
 
@@ -57,7 +59,6 @@ export default async function ReservationPage({ params }: { params: Promise<{ lo
       <PageHero
         eyebrow="Group Reservations"
         title={dict.reservation.title}
-        lead={dict.reservation.lead}
         image="/images/fuji/fuji-03.webp"
         height="h-[58vh] min-h-[22rem] md:h-[70vh]"
       />
@@ -69,6 +70,13 @@ export default async function ReservationPage({ params }: { params: Promise<{ lo
           <Link href={localePath(active, '/contact')} className="text-brass underline-offset-4 hover:underline">
             {dict.contact.here}
           </Link>
+          <span className="flex-1" />
+          <a href="#call" className="border border-brass/50 px-5 py-2 text-[0.75rem] tracking-[0.14em] text-brass hover:bg-brass hover:text-page">
+            {dict.reservation.byPhone}
+          </a>
+          <a href="#form" className="border border-brass/50 px-5 py-2 text-[0.75rem] tracking-[0.14em] text-brass hover:bg-brass hover:text-page">
+            {dict.reservation.byForm}
+          </a>
         </div>
       </div>
 
@@ -78,7 +86,10 @@ export default async function ReservationPage({ params }: { params: Promise<{ lo
           <div className="grid gap-6 md:grid-cols-3 md:gap-7">
             {options.map((option, i) => (
               <Reveal key={option.title} delay={i * 0.1}>
-                <Link href={localePath(active, option.href)} className="group block h-full">
+                <Link
+                  href={option.href.startsWith('#') ? option.href : localePath(active, option.href)}
+                  className="group block h-full"
+                >
                   <div className="relative aspect-16/10 w-full overflow-hidden">
                     <Image
                       src={option.image}
@@ -91,6 +102,11 @@ export default async function ReservationPage({ params }: { params: Promise<{ lo
                   </div>
                   <h3 className="type-display mt-6 text-[1.125rem] text-ink">{option.title}</h3>
                   <p className="type-body mt-3 text-[0.8125rem]">{option.body}</p>
+                  {option.cta && (
+                    <span className="mt-5 inline-block border-b border-brass/50 pb-1 text-[0.75rem] tracking-[0.18em] text-brass transition-colors group-hover:border-brass">
+                      {option.cta} →
+                    </span>
+                  )}
                 </Link>
               </Reveal>
             ))}
@@ -99,7 +115,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ lo
       </section>
 
       {/* By phone --------------------------------------------------------- */}
-      <section className="relative border-y border-brass/25 bg-page-2 py-16 md:py-20">
+      <section id="call" className="relative scroll-mt-24 border-y border-brass/25 bg-page-2 py-16 md:py-20">
         <div className="shell flex flex-wrap items-center justify-between gap-8">
           <div>
             <Reveal>
@@ -107,7 +123,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ lo
             </Reveal>
             <SplitText
               as="h2"
-              text={dict.reservation.byPhone}
+              text={dict.reservation.phoneLead}
               delay={0.06}
               className="type-display mt-4 text-[clamp(1.25rem,2.8vw,2rem)] text-ink"
             />
@@ -127,7 +143,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ lo
       {/* Form ------------------------------------------------------------- */}
       <section id="form" className="relative scroll-mt-24 py-24 md:py-32">
         <div className="shell">
-          <SectionHeading eyebrow={dict.reservation.formLeadEn} title={dict.reservation.byForm} />
+          <SectionHeading eyebrow={dict.reservation.formLeadEn} title={dict.reservation.formLead} />
           <div className="mt-14">
             <ReservationForm locale={active} />
           </div>

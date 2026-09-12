@@ -33,7 +33,6 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
       <PageHero
         eyebrow="Contact"
         title={dict.contact.title}
-        lead={dict.contact.lead}
         image="/images/brand/hero-main.webp"
         height="h-[52vh] min-h-[20rem] md:h-[62vh]"
       />

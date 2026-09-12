@@ -35,7 +35,6 @@ export default async function BusinessPage({ params }: { params: Promise<{ local
       <PageHero
         eyebrow="Business"
         title={active === 'ja' ? '事業内容' : 'Business'}
-        lead={dict.home.businessLead}
         image="/images/business/product-02.webp"
       />
 

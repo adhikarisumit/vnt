@@ -1,14 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { motion } from 'motion/react';
 
 import { Checkbox, Field, Select, TextArea, TextInput } from './Field';
 import { SuccessPanel } from './ReservationForm';
 import { contactSchema } from '@/lib/schemas';
 import { getDictionary } from '@/content/dictionary';
-import { localePath, type Locale } from '@/lib/i18n';
+import type { Locale } from '@/lib/i18n';
 
 type Values = {
   category: string;
@@ -178,14 +177,7 @@ export function ContactForm({ locale }: { locale: Locale }) {
         <Checkbox
           checked={values.agree}
           onChange={(e) => set('agree', e.target.checked)}
-          label={
-            <>
-              <Link href={localePath(locale, '/privacy')} className="text-brass underline-offset-4 hover:underline">
-                {dict.privacy.title}
-              </Link>
-              {locale === 'ja' ? 'に同意する' : ' — I agree'}
-            </>
-          }
+          label={dict.contact.agree}
         />
         {errors.agree && <p className="text-xs text-vermilion">{errors.agree}</p>}
         {status === 'error' && (

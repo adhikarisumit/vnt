@@ -33,6 +33,7 @@ export type NavItem = {
   children?: { href: string; label: L10n }[];
 };
 
+/** Full menu (overlay). Labels use the live site's wording. */
 export const navigation: NavItem[] = [
   {
     href: '/company',
@@ -42,7 +43,7 @@ export const navigation: NavItem[] = [
   {
     href: '/business',
     index: '02',
-    label: { ja: '事業内容', en: 'Business' },
+    label: { ja: '事業', en: 'Business' },
   },
   {
     href: '/hotels',
@@ -57,24 +58,33 @@ export const navigation: NavItem[] = [
   {
     href: '/dining',
     index: '04',
-    label: { ja: '飲食・物販', en: 'Dining & Retail' },
+    label: { ja: '飲食・販売店', en: 'Food & Shop' },
     children: [
       { href: '/dining/geisyatei', label: { ja: '芸者亭', en: 'Geisha-tei' } },
-      { href: '/dining/warakutei-yakiniku', label: { ja: '和楽亭 極上和牛', en: 'Warakutei Yakiniku' } },
-      { href: '/dining/warakutei-yakitori', label: { ja: '和楽亭 焼き鳥居酒屋', en: 'Warakutei Yakitori' } },
+      { href: '/dining', label: { ja: '和楽亭（焼肉、焼鳥）', en: 'Warakutei (Yakiniku, Yakitori)' } },
       { href: '/retail', label: { ja: 'イケガミストア', en: 'Ikegami Store' } },
     ],
   },
   {
     href: '/reservation',
     index: '05',
-    label: { ja: '団体予約', en: 'Reservations' },
+    label: { ja: '施設予約', en: 'Reservations' },
   },
   {
     href: '/contact',
     index: '06',
     label: { ja: 'お問い合わせ', en: 'Contact' },
   },
+];
+
+/** Header bar links, in the live site's order and wording. 採用 goes to the
+ *  contact form there, as it does on the live site. */
+export const headerNav: { href: string; label: L10n }[] = [
+  { href: '/business', label: { ja: '事業', en: 'Business' } },
+  { href: '/hotels', label: { ja: 'ホテル', en: 'Hotels' } },
+  { href: '/dining', label: { ja: '飲食・販売店', en: 'Food & Shop' } },
+  { href: '/contact', label: { ja: '採用', en: 'Careers' } },
+  { href: '/company', label: { ja: '会社概要', en: 'Company' } },
 ];
 
 export type FooterLink = { href: string; label: L10n };
@@ -119,7 +129,8 @@ export const footerNav: {
   },
   corporate: [
     { href: '/contact', label: { ja: 'お問い合せ', en: 'Contact' } },
-    { href: '/recruit', label: { ja: '採用情報', en: 'Careers' } },
+    // The live site has no careers page; 採用情報 goes to the contact form.
+    { href: '/contact', label: { ja: '採用情報', en: 'Careers' } },
     { href: '/company', label: { ja: '会社概要', en: 'Company' } },
   ],
 };

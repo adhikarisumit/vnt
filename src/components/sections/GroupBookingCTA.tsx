@@ -6,7 +6,7 @@ import { SplitText } from '@/components/motion/SplitText';
 import { ButtonLink } from '@/components/ui/ArrowLink';
 
 /** Brass band used at the foot of every hotel, venue and hub page. */
-export function GroupBookingCTA({ locale, body }: { locale: Locale; body?: string }) {
+export function GroupBookingCTA({ locale, body, title }: { locale: Locale; body?: string; title?: string }) {
   const dict = getDictionary(locale);
 
   return (
@@ -22,7 +22,7 @@ export function GroupBookingCTA({ locale, body }: { locale: Locale; body?: strin
 
             <SplitText
               as="h2"
-              text={dict.reservation.title}
+              text={title ?? dict.reservation.title}
               delay={0.06}
               className="type-display mt-5 text-[clamp(1.6rem,3.6vw,2.75rem)] text-ink"
             />

@@ -117,7 +117,12 @@ export default async function LocaleLayout({
 
         <Header
           locale={locale}
-          labels={{ menu: dict.common.menu, close: dict.common.close, reserve: dict.common.reserve }}
+          labels={{
+            menu: dict.common.menu,
+            close: dict.common.close,
+            reserve: dict.common.facilityReserve,
+            contact: dict.common.contact,
+          }}
         />
 
         <PageTransition>{children}</PageTransition>

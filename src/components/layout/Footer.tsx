@@ -41,7 +41,7 @@ export function Footer({ locale }: { locale: Locale }) {
           <Reveal delay={0.12}>
             <ul className="space-y-3.5">
               {footerNav.corporate.map((link) => (
-                <li key={link.href}>
+                <li key={link.href + link.label.ja}>
                   <FooterAnchor href={localePath(locale, link.href)}>{t(link.label, locale)}</FooterAnchor>
                 </li>
               ))}
