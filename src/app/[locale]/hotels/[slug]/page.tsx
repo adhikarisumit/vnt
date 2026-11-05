@@ -162,7 +162,6 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
       <section className="relative pb-28 md:pb-16">
         <div className="relative mx-auto h-[26rem] overflow-hidden md:mx-[4.2%] md:h-[clamp(30rem,45vw,41rem)]">
           <Image src={art?.hero ?? hotel.hero} alt={title} fill priority sizes="100vw" className="object-cover" />
-          <div className="absolute inset-0 bg-black/15" />
           <div className="relative flex h-full flex-col items-center justify-center px-5 text-center text-white [text-shadow:0_1px_10px_rgba(0,0,0,0.25)] md:-mt-6">
             <h1 className="font-[family-name:var(--font-tenor)] text-[clamp(1.6rem,3vw,2.6rem)] tracking-[0.15em]">{title}</h1>
             <p className="mt-1 text-[1.1rem] tracking-[0.2em] md:text-[1.35rem]">{'★'.repeat(hotel.stars)}</p>
@@ -192,8 +191,8 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
           </span>
         </a>
 
-        {/* Black group box, bottom right. */}
-        <div className="absolute right-0 bottom-0 z-10 hidden w-[19rem] flex-col items-center bg-black px-8 py-8 text-white md:flex lg:w-[24rem]">
+        {/* Black group box, pinned bottom right like live. */}
+        <div className="fixed right-0 bottom-0 z-[110] hidden w-[19rem] flex-col items-center bg-black px-8 py-8 text-white md:flex lg:w-[24rem]">
           <p className="text-[1.5rem] font-medium">{L(S.groupTitle)}</p>
           <a href="tel:08040979552" className="mt-3 flex items-center gap-3 text-[0.9375rem] hover:opacity-75">
             <PhoneIcon /> {L(S.groupDesk)}　080-4097-9552
