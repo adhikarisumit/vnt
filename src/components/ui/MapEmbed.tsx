@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 
 /**
- * Google Maps iframe held behind a click-to-load cover, so the third-party
- * frame (and its cookies) only load when a visitor actually asks for the map.
+ * Google Maps iframe held behind a cover until the map scrolls near the
+ * viewport (or is clicked), so the third-party frame doesn't load with the page.
  */
 export function MapEmbed({
   src,
@@ -21,9 +21,26 @@ export function MapEmbed({
   height?: string;
 }) {
   const [loaded, setLoaded] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || loaded) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setLoaded(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: '400px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [loaded]);
 
   return (
-    <div className={`relative w-full overflow-hidden bg-page-2 ${height}`}>
+    <div ref={ref} className={`relative w-full overflow-hidden bg-page-2 ${height}`}>
       {loaded ? (
         <iframe
           src={src}

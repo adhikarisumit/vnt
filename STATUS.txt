@@ -1,0 +1,17 @@
+VNT renewal (estimate VNT_見積書 2026-10-26: project 1 = VNT vntgroup.co.jp, project 2 = hisano-jp.com)
+Existing demo: this Next.js 15 site (rebuild of vntgroup.co.jp, Sept 2026), repo github.com/adhikarisumit/vnt (not pushed since).
+Dev: npm run dev -- -p 3311  -> http://localhost:3311/ja/hotels/fuji
+
+5 Nov 2026 23:10 - hotel template v2 after studying the 3 estimate reference sites (_refs\ crawl + slices, ANALYSIS in CONTENT_TODO.md):
+- 客室: alternating rows, main photo + thumbnail switcher (components/hotel/RoomGallery.tsx), spec table, 客室設備, 予約 button.
+- アクセス: map now auto-loads when scrolled near (MapEmbed, all pages); new ルート案内 line diagrams (stay.access.journeys).
+- 周辺観光: Pick up spot, 公式サイト links, light placeholder panels instead of black, new 季節の行事 (stay.sightseeing.events).
+- Checked desktop 1440 + iPhone 13 on fuji/nagoya/toji: no page errors, no horizontal overflow. tsc clean. Local commit only.
+
+3 Nov 2026 19:40 - estimate items 1-4 DONE (local commit ca1c3c0, not pushed)
+- Common hotel template: sticky sub-nav 客室/お食事/アクセス/周辺観光 + 4 sections, copy in src/content/hotelStay.ts (DRAFT copy, see CONTENT_TODO.md).
+- Checked desktop 1440, tablet 820, phone 390 on fuji/nagoya/toji: no page errors, anchors land under the nav.
+NEXT: items 5-7 (芸者亭 / 和楽亭 / イケガミストア layout + photos), 8-11 new pages (京彩堂 kimono, Kix Japan drug 泉佐野, 京彩堂 drug, 大阪花月) - need client copy/photos.
+OPEN: estimate says static pages without CMS; this demo is Next.js (forms need a server). Decide hosting/static export with Boss/client.
+
+3 Nov 2026 19:30 - BOSS: do NOT replace vntgroup.co.jp; ADD the estimate items to the existing live site. Live site = STUDIO (studio.design, no-code). Work must happen in the client's STUDIO editor (need invite/login). The Next.js hotel template here = reference/prototype only.

@@ -22,3 +22,12 @@ is OUR DRAFT for layout; replace it with the client's supplied copy and photos.
 ## Premium Toji
 - Room types: two photos (toji-04 pagoda view, toji-08 twin). Booking.com lists a restaurant/breakfast — confirm.
 - Kyoto Station walk (draft ~20 min) / 近鉄東寺駅 (draft ~10 min).
+
+## Added 5 Nov 2026 (reference-site analysis: goderehotel / wayoukan / sunrisesuites-kyoto)
+- Room rows now have a spec table (客室タイプ / ベッド / 定員 / 眺望), 客室設備 chips and a 予約 button per room.
+  Bed counts, capacities and the amenity list are OUR DRAFT; confirm per room type. Thumbnails reuse existing hotel photos.
+- Route guide (ルート案内) line diagrams per hotel: times are drafts (Tokyo→河口湖IC ~1h30 by car, etc.).
+- Sightseeing: "Pick up" spot (Fuji 河口湖 / Nagoya 名古屋城 / Toji 東寺) and 公式サイト links. Spots without a photo show a
+  light map-grid panel — client photos needed for: 新倉山浅間公園, 北口本宮冨士浅間神社, 忍野八海, 富士急ハイランド, 山中湖,
+  尾張大國霊神社, 清洲城, 熱田神宮, 徳川美術館, 京都水族館, 伏見稲荷大社, 西本願寺.
+- 季節の行事 (4 per hotel, wayoukan-style): names/dates are public info but change yearly; client to confirm which to show.

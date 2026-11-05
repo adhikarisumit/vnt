@@ -17,6 +17,11 @@ export type RoomType = {
   body: L10n;
   /** Short facts printed as tags: size, capacity, beds. */
   specs?: L10n[];
+  /** Extra photos for the thumbnail strip; `image` is always shown first. */
+  gallery?: string[];
+  /** Spec table rows (客室タイプ / ベッド / 定員 / 広さ). */
+  facts?: { label: L10n; value: L10n }[];
+  amenities?: L10n[];
 };
 
 export type DiningItem = {
@@ -31,6 +36,23 @@ export type RouteMode = 'train' | 'car' | 'bus' | 'walk' | 'plane';
 
 export type Route = { mode: RouteMode; from: L10n; detail: L10n };
 
+/** One door-to-door route for the line diagram: place, leg, place, leg, … hotel. */
+export type Journey = {
+  title: L10n;
+  steps: { place: L10n; leg?: { mode: RouteMode; text: L10n } }[];
+};
+
+export type Season = 'spring' | 'summer' | 'autumn' | 'winter';
+
+export type SeasonalEvent = {
+  season: Season;
+  name: L10n;
+  when: L10n;
+  place: L10n;
+  body: L10n;
+  query: string;
+};
+
 export type Spot = {
   name: L10n;
   /** Travel time from the hotel, e.g. 車で約10分. */
@@ -39,6 +61,10 @@ export type Spot = {
   image?: string;
   /** Google Maps search text for the "view on map" link. */
   query: string;
+  /** Official website. */
+  site?: string;
+  /** Shown large as the "Pick up" spot above the grid. */
+  pickup?: boolean;
 };
 
 export type HotelStay = {
@@ -47,11 +73,12 @@ export type HotelStay = {
   access: {
     lead: L10n;
     routes: Route[];
+    journeys?: Journey[];
     checkIn?: string;
     checkOut?: string;
     parking?: L10n;
   };
-  sightseeing: { lead: L10n; spots: Spot[] };
+  sightseeing: { lead: L10n; spots: Spot[]; events?: SeasonalEvent[] };
 };
 
 const BREAKFAST_NOTE: L10n = {
@@ -70,6 +97,21 @@ const stays: Record<Hotel['slug'], HotelStay> = {
         {
           name: { ja: '富士山ビュー ツインルーム', en: 'Mt. Fuji View Twin' },
           image: '/images/fuji/fuji-02.webp',
+          gallery: ['/images/fuji/fuji-01.webp', '/images/fuji/onsen-01.webp'],
+          facts: [
+            { label: { ja: '客室タイプ', en: 'Room type' }, value: { ja: 'ツインルーム', en: 'Twin' } },
+            { label: { ja: 'ベッド', en: 'Beds' }, value: { ja: 'シングルベッド × 2', en: '2 single beds' } },
+            { label: { ja: '定員', en: 'Capacity' }, value: { ja: '2名様', en: '2 guests' } },
+            { label: { ja: '眺望', en: 'View' }, value: { ja: '富士山ビュー', en: 'Mt. Fuji' } },
+          ],
+          amenities: [
+            { ja: '無料Wi-Fi', en: 'Free Wi-Fi' },
+            { ja: 'テレビ', en: 'TV' },
+            { ja: '冷蔵庫', en: 'Fridge' },
+            { ja: 'エアコン', en: 'Air conditioning' },
+            { ja: 'バス・トイレ', en: 'Bath & toilet' },
+            { ja: 'アメニティ一式', en: 'Toiletries' },
+          ],
           body: {
             ja: '大きな窓から富士山を望むツインルーム。朝焼けから夕暮れまで、刻々と表情を変える富士山を客室からお楽しみいただけます。',
             en: 'A twin room with a large window onto Mt. Fuji — watch the mountain change from dawn to dusk without leaving the room.',
@@ -82,6 +124,20 @@ const stays: Record<Hotel['slug'], HotelStay> = {
         {
           name: { ja: '眺望を楽しむ客室', en: 'Rooms with a view' },
           image: '/images/fuji/fuji-01.webp',
+          gallery: ['/images/fuji/info-top.webp', '/images/fuji/fuji-03.webp'],
+          facts: [
+            { label: { ja: '客室タイプ', en: 'Room type' }, value: { ja: '富士山ビュー客室', en: 'Mt. Fuji view room' } },
+            { label: { ja: '定員', en: 'Capacity' }, value: { ja: '1〜3名様', en: '1–3 guests' } },
+            { label: { ja: '眺望', en: 'View' }, value: { ja: '富士山ビュー', en: 'Mt. Fuji' } },
+          ],
+          amenities: [
+            { ja: '無料Wi-Fi', en: 'Free Wi-Fi' },
+            { ja: 'テレビ', en: 'TV' },
+            { ja: '冷蔵庫', en: 'Fridge' },
+            { ja: 'エアコン', en: 'Air conditioning' },
+            { ja: 'バス・トイレ', en: 'Bath & toilet' },
+            { ja: 'アメニティ一式', en: 'Toiletries' },
+          ],
           body: {
             ja: '窓辺に腰かけて、目の前に広がる富士山を眺めるひととき。旅の思い出に残る景色を、客室からそのままお届けします。',
             en: 'Sit by the window with Mt. Fuji filling the view — a scene to remember, straight from your room.',
@@ -141,6 +197,24 @@ const stays: Record<Hotel['slug'], HotelStay> = {
           detail: { ja: 'お車で約10分', en: 'About 10 min by car' },
         },
       ],
+      journeys: [
+        {
+          title: { ja: '東京方面から（高速バス）', en: 'From Tokyo by highway bus' },
+          steps: [
+            { place: { ja: 'バスタ新宿', en: 'Busta Shinjuku' }, leg: { mode: 'bus', text: { ja: '高速バス 約2時間', en: 'Highway bus, about 2 h' } } },
+            { place: { ja: '富士山駅', en: 'Fujisan Station' }, leg: { mode: 'car', text: { ja: 'タクシー 約7分', en: 'Taxi, about 7 min' } } },
+            { place: { ja: 'ホテル', en: 'Hotel' } },
+          ],
+        },
+        {
+          title: { ja: 'お車でお越しの場合', en: 'By car' },
+          steps: [
+            { place: { ja: '東京方面（中央自動車道）', en: 'From Tokyo (Chuo Expressway)' }, leg: { mode: 'car', text: { ja: '約1時間30分', en: 'About 1 h 30 min' } } },
+            { place: { ja: '河口湖IC', en: 'Kawaguchiko IC' }, leg: { mode: 'car', text: { ja: '約10分', en: 'About 10 min' } } },
+            { place: { ja: 'ホテル', en: 'Hotel' } },
+          ],
+        },
+      ],
     },
     sightseeing: {
       lead: {
@@ -165,6 +239,7 @@ const stays: Record<Hotel['slug'], HotelStay> = {
             en: 'A centre of Mt. Fuji worship for centuries — a cedar-lined approach and a solemn shrine hall.',
           },
           query: '北口本宮冨士浅間神社',
+          site: 'https://www.sengenjinja.jp/',
         },
         {
           name: { ja: '忍野八海', en: 'Oshino Hakkai' },
@@ -183,6 +258,7 @@ const stays: Record<Hotel['slug'], HotelStay> = {
             en: 'The theme park famous for its thrill rides under Mt. Fuji — great for families and groups.',
           },
           query: '富士急ハイランド',
+          site: 'https://www.fujiq.jp/',
         },
         {
           name: { ja: '河口湖', en: 'Lake Kawaguchi' },
@@ -193,6 +269,7 @@ const stays: Record<Hotel['slug'], HotelStay> = {
           },
           image: '/images/fuji/fuji-03.webp',
           query: '河口湖',
+          pickup: true,
         },
         {
           name: { ja: '山中湖', en: 'Lake Yamanaka' },
@@ -202,6 +279,40 @@ const stays: Record<Hotel['slug'], HotelStay> = {
             en: 'The largest of the Fuji Five Lakes, with a superb view of the mountain — and “Diamond Fuji” in winter.',
           },
           query: '山中湖',
+        },
+      ],
+      events: [
+        {
+          season: 'spring',
+          name: { ja: '富士芝桜まつり', en: 'Fuji Shibazakura Festival' },
+          when: { ja: '4月中旬〜5月下旬', en: 'Mid April – late May' },
+          place: { ja: '富士本栖湖リゾート', en: 'Fuji Motosuko Resort' },
+          body: { ja: '約50万株の芝桜が富士山の麓を彩る、春の人気イベント。', en: 'Some 500,000 moss phlox plants carpet the foot of Mt. Fuji.' },
+          query: '富士芝桜まつり',
+        },
+        {
+          season: 'summer',
+          name: { ja: '吉田の火祭り', en: 'Yoshida Fire Festival' },
+          when: { ja: '8月26日・27日', en: '26–27 August' },
+          place: { ja: '北口本宮冨士浅間神社・富士吉田市街', en: 'Kitaguchi Hongu Fuji Sengen Shrine & town' },
+          body: { ja: '富士山の山じまいを告げる日本三奇祭のひとつ。街中に大松明が灯ります。', en: 'One of Japan’s three great unusual festivals, closing the climbing season with giant torches.' },
+          query: '吉田の火祭り',
+        },
+        {
+          season: 'autumn',
+          name: { ja: '富士河口湖紅葉まつり', en: 'Fujikawaguchiko Autumn Leaves Festival' },
+          when: { ja: '10月下旬〜11月中旬', en: 'Late October – mid November' },
+          place: { ja: '河口湖畔 もみじ回廊', en: 'Momiji Corridor, Lake Kawaguchi' },
+          body: { ja: '紅葉のトンネルと富士山を一緒に楽しめる、秋の河口湖の風物詩。', en: 'A tunnel of red maples with Mt. Fuji behind — Lake Kawaguchi in autumn.' },
+          query: '河口湖 もみじ回廊',
+        },
+        {
+          season: 'winter',
+          name: { ja: '河口湖冬花火', en: 'Lake Kawaguchi Winter Fireworks' },
+          when: { ja: '1月下旬〜2月の週末', en: 'Weekends, late January – February' },
+          place: { ja: '河口湖畔', en: 'Lake Kawaguchi' },
+          body: { ja: '澄んだ冬の夜空に、富士山と湖を背景にした花火が上がります。', en: 'Fireworks over the lake under clear winter skies, with Mt. Fuji behind.' },
+          query: '河口湖 冬花火',
         },
       ],
     },
@@ -217,6 +328,20 @@ const stays: Record<Hotel['slug'], HotelStay> = {
         {
           name: { ja: 'ダブルルーム', en: 'Double Room' },
           image: '/images/nagoya/room-01.webp',
+          gallery: ['/images/nagoya/nagoya-01.webp', '/images/nagoya/nagoya-02.webp'],
+          facts: [
+            { label: { ja: '客室タイプ', en: 'Room type' }, value: { ja: 'ダブルルーム', en: 'Double' } },
+            { label: { ja: 'ベッド', en: 'Beds' }, value: { ja: 'ダブルベッド × 1', en: '1 double bed' } },
+            { label: { ja: '定員', en: 'Capacity' }, value: { ja: '1〜2名様', en: '1–2 guests' } },
+          ],
+          amenities: [
+            { ja: '無料Wi-Fi', en: 'Free Wi-Fi' },
+            { ja: 'テレビ', en: 'TV' },
+            { ja: '冷蔵庫', en: 'Fridge' },
+            { ja: 'エアコン', en: 'Air conditioning' },
+            { ja: 'バス・トイレ', en: 'Bath & toilet' },
+            { ja: 'アメニティ一式', en: 'Toiletries' },
+          ],
           body: {
             ja: 'お一人様やご夫婦でのご滞在に。落ち着いた色調で、観光やお仕事の後にゆっくりお休みいただけます。',
             en: 'For solo guests or couples — calm tones to rest well after sightseeing or work.',
@@ -226,6 +351,20 @@ const stays: Record<Hotel['slug'], HotelStay> = {
         {
           name: { ja: 'ツインルーム', en: 'Twin Room' },
           image: '/images/nagoya/room-02.webp',
+          gallery: ['/images/nagoya/nagoya-03.webp', '/images/nagoya/nagoya-04.webp'],
+          facts: [
+            { label: { ja: '客室タイプ', en: 'Room type' }, value: { ja: 'ツインルーム', en: 'Twin' } },
+            { label: { ja: 'ベッド', en: 'Beds' }, value: { ja: 'シングルベッド × 2', en: '2 single beds' } },
+            { label: { ja: '定員', en: 'Capacity' }, value: { ja: '2名様', en: '2 guests' } },
+          ],
+          amenities: [
+            { ja: '無料Wi-Fi', en: 'Free Wi-Fi' },
+            { ja: 'テレビ', en: 'TV' },
+            { ja: '冷蔵庫', en: 'Fridge' },
+            { ja: 'エアコン', en: 'Air conditioning' },
+            { ja: 'バス・トイレ', en: 'Bath & toilet' },
+            { ja: 'アメニティ一式', en: 'Toiletries' },
+          ],
           body: {
             ja: 'ご友人同士や出張にも便利なツインルーム。それぞれのベッドでゆったりとお過ごしいただけます。',
             en: 'A twin room for friends or colleagues, with a bed each to relax in.',
@@ -235,6 +374,20 @@ const stays: Record<Hotel['slug'], HotelStay> = {
         {
           name: { ja: 'トリプルルーム', en: 'Triple Room' },
           image: '/images/nagoya/room-03.webp',
+          gallery: ['/images/nagoya/nagoya-01.webp', '/images/nagoya/nagoya-03.webp'],
+          facts: [
+            { label: { ja: '客室タイプ', en: 'Room type' }, value: { ja: 'トリプルルーム', en: 'Triple' } },
+            { label: { ja: 'ベッド', en: 'Beds' }, value: { ja: 'シングルベッド × 3', en: '3 single beds' } },
+            { label: { ja: '定員', en: 'Capacity' }, value: { ja: '3名様', en: '3 guests' } },
+          ],
+          amenities: [
+            { ja: '無料Wi-Fi', en: 'Free Wi-Fi' },
+            { ja: 'テレビ', en: 'TV' },
+            { ja: '冷蔵庫', en: 'Fridge' },
+            { ja: 'エアコン', en: 'Air conditioning' },
+            { ja: 'バス・トイレ', en: 'Bath & toilet' },
+            { ja: 'アメニティ一式', en: 'Toiletries' },
+          ],
           body: {
             ja: 'ご家族や小グループでのご旅行に。皆さまご一緒に過ごせる、ゆとりある客室です。',
             en: 'For families and small groups — room for everyone together.',
@@ -294,6 +447,24 @@ const stays: Record<Hotel['slug'], HotelStay> = {
           detail: { ja: '名鉄で国府宮駅まで約1時間', en: 'About 1 h to Konomiya on the Meitetsu line' },
         },
       ],
+      journeys: [
+        {
+          title: { ja: '名古屋駅から', en: 'From Nagoya Station' },
+          steps: [
+            { place: { ja: '名鉄名古屋駅', en: 'Meitetsu Nagoya' }, leg: { mode: 'train', text: { ja: '急行 約15分', en: 'Express, about 15 min' } } },
+            { place: { ja: '国府宮駅', en: 'Konomiya Station' }, leg: { mode: 'walk', text: { ja: '徒歩 約5分', en: 'About 5 min on foot' } } },
+            { place: { ja: 'ホテル', en: 'Hotel' } },
+          ],
+        },
+        {
+          title: { ja: '空港から', en: 'From the airport' },
+          steps: [
+            { place: { ja: '中部国際空港', en: 'Centrair Airport' }, leg: { mode: 'train', text: { ja: '名鉄 約1時間', en: 'Meitetsu, about 1 h' } } },
+            { place: { ja: '国府宮駅', en: 'Konomiya Station' }, leg: { mode: 'walk', text: { ja: '徒歩 約5分', en: 'About 5 min on foot' } } },
+            { place: { ja: 'ホテル', en: 'Hotel' } },
+          ],
+        },
+      ],
     },
     sightseeing: {
       lead: {
@@ -328,6 +499,8 @@ const stays: Record<Hotel['slug'], HotelStay> = {
           },
           image: '/images/nagoya/castle-01.webp',
           query: '名古屋城',
+          pickup: true,
+          site: 'https://www.nagoyajo.city.nagoya.jp/',
         },
         {
           name: { ja: '熱田神宮', en: 'Atsuta Shrine' },
@@ -337,6 +510,7 @@ const stays: Record<Hotel['slug'], HotelStay> = {
             en: 'Home of the sacred Kusanagi sword, one of the three imperial regalia — a quiet forest in the city.',
           },
           query: '熱田神宮',
+          site: 'https://www.atsutajingu.or.jp/',
         },
         {
           name: { ja: '徳川美術館', en: 'Tokugawa Art Museum' },
@@ -346,6 +520,41 @@ const stays: Record<Hotel['slug'], HotelStay> = {
             en: 'Treasures of the Owari Tokugawa family, including the national-treasure Tale of Genji scrolls.',
           },
           query: '徳川美術館',
+          site: 'https://www.tokugawa-art-museum.jp/',
+        },
+      ],
+      events: [
+        {
+          season: 'spring',
+          name: { ja: '名古屋城 春まつり', en: 'Nagoya Castle Spring Festival' },
+          when: { ja: '3月下旬〜4月上旬', en: 'Late March – early April' },
+          place: { ja: '名古屋城', en: 'Nagoya Castle' },
+          body: { ja: '約1,000本の桜が天守を彩り、夜はライトアップも行われます。', en: 'About 1,000 cherry trees frame the keep, lit up at night.' },
+          query: '名古屋城',
+        },
+        {
+          season: 'summer',
+          name: { ja: '稲沢あじさいまつり', en: 'Inazawa Hydrangea Festival' },
+          when: { ja: '6月上旬〜中旬', en: 'Early – mid June' },
+          place: { ja: '性海寺・大塚性海寺歴史公園', en: 'Shokaiji Temple' },
+          body: { ja: '約1万株のあじさいが境内と公園を埋め尽くします。', en: 'Around 10,000 hydrangeas fill the temple and park.' },
+          query: '性海寺',
+        },
+        {
+          season: 'autumn',
+          name: { ja: 'そぶえイチョウ黄葉まつり', en: 'Sobue Ginkgo Festival' },
+          when: { ja: '11月下旬〜12月上旬', en: 'Late November – early December' },
+          place: { ja: '稲沢市祖父江町', en: 'Sobue, Inazawa' },
+          body: { ja: '日本有数のイチョウの産地が黄金色に染まる、晩秋の祭りです。', en: 'One of Japan’s great ginkgo towns turns gold in late autumn.' },
+          query: '祖父江 イチョウ',
+        },
+        {
+          season: 'winter',
+          name: { ja: '国府宮はだか祭', en: 'Konomiya Hadaka Matsuri' },
+          when: { ja: '旧暦正月13日', en: '13th day of the lunar new year' },
+          place: { ja: '尾張大國霊神社（国府宮）', en: 'Owari Okunitama Shrine' },
+          body: { ja: '数千人の裸男が神男に触れて厄を落とす、1250年以上続く奇祭。', en: 'Thousands of loincloth-clad men reach for the “shin-otoko” to shed bad luck — a 1,250-year tradition.' },
+          query: '尾張大國霊神社',
         },
       ],
     },
@@ -361,6 +570,20 @@ const stays: Record<Hotel['slug'], HotelStay> = {
         {
           name: { ja: '五重塔ビューの客室', en: 'Pagoda View Room' },
           image: '/images/toji/toji-04.webp',
+          gallery: ['/images/toji/toji-03.webp', '/images/toji/toji-06.webp'],
+          facts: [
+            { label: { ja: '客室タイプ', en: 'Room type' }, value: { ja: '五重塔ビュー', en: 'Pagoda view' } },
+            { label: { ja: '定員', en: 'Capacity' }, value: { ja: '2名様', en: '2 guests' } },
+            { label: { ja: '眺望', en: 'View' }, value: { ja: '東寺 五重塔', en: 'Toji pagoda' } },
+          ],
+          amenities: [
+            { ja: '無料Wi-Fi', en: 'Free Wi-Fi' },
+            { ja: 'テレビ', en: 'TV' },
+            { ja: '冷蔵庫', en: 'Fridge' },
+            { ja: 'エアコン', en: 'Air conditioning' },
+            { ja: 'バス・トイレ', en: 'Bath & toilet' },
+            { ja: 'アメニティ一式', en: 'Toiletries' },
+          ],
           body: {
             ja: '窓の向こうに東寺の五重塔。朝の光、夕暮れ、夜のライトアップと、時間とともに変わる景色をお楽しみください。',
             en: 'Toji’s pagoda beyond the window — morning light, dusk and night illumination, changing through the day.',
@@ -370,6 +593,20 @@ const stays: Record<Hotel['slug'], HotelStay> = {
         {
           name: { ja: 'ツインルーム', en: 'Twin Room' },
           image: '/images/toji/toji-08.webp',
+          gallery: ['/images/toji/toji-05.webp', '/images/toji/toji-01.webp'],
+          facts: [
+            { label: { ja: '客室タイプ', en: 'Room type' }, value: { ja: 'ツインルーム', en: 'Twin' } },
+            { label: { ja: 'ベッド', en: 'Beds' }, value: { ja: 'シングルベッド × 2', en: '2 single beds' } },
+            { label: { ja: '定員', en: 'Capacity' }, value: { ja: '2名様', en: '2 guests' } },
+          ],
+          amenities: [
+            { ja: '無料Wi-Fi', en: 'Free Wi-Fi' },
+            { ja: 'テレビ', en: 'TV' },
+            { ja: '冷蔵庫', en: 'Fridge' },
+            { ja: 'エアコン', en: 'Air conditioning' },
+            { ja: 'バス・トイレ', en: 'Bath & toilet' },
+            { ja: 'アメニティ一式', en: 'Toiletries' },
+          ],
           body: {
             ja: '和のアクセントを取り入れた落ち着きのあるツインルーム。観光の後も、静かな京都の夜をゆっくりお過ごしいただけます。',
             en: 'A calm twin room with Japanese accents — a quiet Kyoto night after a day of sightseeing.',
@@ -432,6 +669,31 @@ const stays: Record<Hotel['slug'], HotelStay> = {
           detail: { ja: '特急はるかで京都駅まで約75分', en: 'About 75 min to Kyoto on the Haruka express' },
         },
       ],
+      journeys: [
+        {
+          title: { ja: '京都駅から', en: 'From Kyoto Station' },
+          steps: [
+            { place: { ja: '京都駅（八条口）', en: 'Kyoto Station (Hachijo exit)' }, leg: { mode: 'car', text: { ja: 'タクシー 約5分', en: 'Taxi, about 5 min' } } },
+            { place: { ja: 'ホテル', en: 'Hotel' } },
+          ],
+        },
+        {
+          title: { ja: '近鉄でお越しの場合', en: 'By Kintetsu line' },
+          steps: [
+            { place: { ja: '京都駅', en: 'Kyoto Station' }, leg: { mode: 'train', text: { ja: '近鉄京都線 約2分', en: 'Kintetsu line, about 2 min' } } },
+            { place: { ja: '東寺駅', en: 'Toji Station' }, leg: { mode: 'walk', text: { ja: '徒歩 約10分', en: 'About 10 min on foot' } } },
+            { place: { ja: 'ホテル', en: 'Hotel' } },
+          ],
+        },
+        {
+          title: { ja: '関西空港から', en: 'From Kansai Airport' },
+          steps: [
+            { place: { ja: '関西国際空港', en: 'Kansai Airport' }, leg: { mode: 'train', text: { ja: '特急はるか 約75分', en: 'Haruka express, about 75 min' } } },
+            { place: { ja: '京都駅', en: 'Kyoto Station' }, leg: { mode: 'car', text: { ja: 'タクシー 約5分', en: 'Taxi, about 5 min' } } },
+            { place: { ja: 'ホテル', en: 'Hotel' } },
+          ],
+        },
+      ],
     },
     sightseeing: {
       lead: {
@@ -448,6 +710,8 @@ const stays: Record<Hotel['slug'], HotelStay> = {
           },
           image: '/images/toji/toji-03.webp',
           query: '東寺',
+          pickup: true,
+          site: 'https://toji.or.jp/',
         },
         {
           name: { ja: '京都水族館・梅小路公園', en: 'Kyoto Aquarium & Umekoji Park' },
@@ -457,6 +721,7 @@ const stays: Record<Hotel['slug'], HotelStay> = {
             en: 'An aquarium of Kyoto’s rivers and seas beside a large park with the Railway Museum — ideal for families.',
           },
           query: '京都水族館',
+          site: 'https://www.kyoto-aquarium.com/',
         },
         {
           name: { ja: '伏見稲荷大社', en: 'Fushimi Inari Taisha' },
@@ -466,6 +731,7 @@ const stays: Record<Hotel['slug'], HotelStay> = {
             en: 'Head shrine of all Inari shrines, famous for the thousands of vermilion torii climbing the mountain.',
           },
           query: '伏見稲荷大社',
+          site: 'https://inari.jp/',
         },
         {
           name: { ja: '清水寺・東山', en: 'Kiyomizu-dera & Higashiyama' },
@@ -476,6 +742,7 @@ const stays: Record<Hotel['slug'], HotelStay> = {
           },
           image: '/images/toji/toji-07.webp',
           query: '清水寺',
+          site: 'https://www.kiyomizudera.or.jp/',
         },
         {
           name: { ja: '西本願寺', en: 'Nishi Hongan-ji' },
@@ -485,6 +752,41 @@ const stays: Record<Hotel['slug'], HotelStay> = {
             en: 'World Heritage head temple of the Jodo Shinshu Honganji school, with lavish Momoyama-era architecture.',
           },
           query: '西本願寺',
+          site: 'https://www.hongwanji.or.jp/',
+        },
+      ],
+      events: [
+        {
+          season: 'spring',
+          name: { ja: '東寺 桜の夜間特別拝観', en: 'Toji Cherry Blossom Night Viewing' },
+          when: { ja: '3月中旬〜4月中旬', en: 'Mid March – mid April' },
+          place: { ja: '東寺', en: 'Toji' },
+          body: { ja: 'ライトアップされたしだれ桜「不二桜」と五重塔の共演。', en: 'The weeping cherry “Fuji-zakura” lit up beside the pagoda.' },
+          query: '東寺',
+        },
+        {
+          season: 'summer',
+          name: { ja: '祇園祭', en: 'Gion Matsuri' },
+          when: { ja: '7月1日〜31日', en: '1–31 July' },
+          place: { ja: '八坂神社・四条烏丸周辺', en: 'Yasaka Shrine & Shijo-Karasuma' },
+          body: { ja: '京都の夏を彩る日本三大祭のひとつ。山鉾巡行は17日・24日。', en: 'One of Japan’s three great festivals; the float parades are on the 17th and 24th.' },
+          query: '八坂神社',
+        },
+        {
+          season: 'autumn',
+          name: { ja: '時代祭', en: 'Jidai Matsuri' },
+          when: { ja: '10月22日', en: '22 October' },
+          place: { ja: '京都御所〜平安神宮', en: 'Kyoto Imperial Palace to Heian Shrine' },
+          body: { ja: '平安から明治までの装束をまとった行列が都大路を進みます。', en: 'A procession in costumes from the Heian to the Meiji era.' },
+          query: '平安神宮',
+        },
+        {
+          season: 'winter',
+          name: { ja: '終い弘法', en: 'Shimai Kobo market' },
+          when: { ja: '12月21日', en: '21 December' },
+          place: { ja: '東寺', en: 'Toji' },
+          body: { ja: '一年最後の弘法市。正月用品や骨董の露店で境内が賑わいます。', en: 'The year’s last Kobo-ichi market, packed with New Year goods and antiques.' },
+          query: '東寺',
         },
       ],
     },

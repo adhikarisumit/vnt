@@ -22,3 +22,6 @@ next-env.d.ts
 
 .shots/
 .dev.log
+
+_refs/
+_live_ref/

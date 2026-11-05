@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -13,9 +14,10 @@ import { MapEmbed } from '@/components/ui/MapEmbed';
 import { VideoEmbed } from '@/components/ui/VideoEmbed';
 import { ButtonLink } from '@/components/ui/ArrowLink';
 import { HotelSectionNav } from '@/components/hotel/HotelSectionNav';
+import { RoomGallery } from '@/components/hotel/RoomGallery';
 
 import { getHotel, hotels, type Hotel } from '@/content/hotels';
-import { getStay, type RouteMode } from '@/content/hotelStay';
+import { getStay, type RouteMode, type Season, type Spot } from '@/content/hotelStay';
 import { getDictionary } from '@/content/dictionary';
 import { isLocale, locales, localePath, t, type L10n, type Locale } from '@/lib/i18n';
 
@@ -58,7 +60,25 @@ const S = {
   fromHotel: { ja: 'ホテルから', en: 'From the hotel' },
   viewMap: { ja: '地図で見る', en: 'View on map' },
   routes: { ja: '交通のご案内', en: 'Getting here' },
+  routeGuide: { ja: 'ルート案内', en: 'Route guide' },
+  amenities: { ja: '客室設備', en: 'In the room' },
+  bookRoom: { ja: 'この客室を予約する', en: 'Book this room' },
+  officialSite: { ja: '公式サイト', en: 'Official site' },
+  events: { ja: '季節の行事', en: 'Seasonal events' },
+  eventsLead: {
+    ja: '四季折々の祭りや行事に合わせて、旅の日程を選ぶのもおすすめです。',
+    en: 'Plan your trip around the festivals and events of each season.',
+  },
 } satisfies Record<string, L10n>;
+
+const SEASON: Record<Season, { mark: string; en: string; tint: string }> = {
+  spring: { mark: '春', en: 'Spring', tint: '#f4e1e1' },
+  summer: { mark: '夏', en: 'Summer', tint: '#e0ead8' },
+  autumn: { mark: '秋', en: 'Autumn', tint: '#f1e6c6' },
+  winter: { mark: '冬', en: 'Winter', tint: '#dde6ec' },
+};
+
+const mapsUrl = (query: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 
 const MODE_LABEL: Record<RouteMode, L10n> = {
   train: { ja: '電車', en: 'Train' },
@@ -84,6 +104,9 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
   const title = hotel.pageTitle ?? hotel.name;
   const stay = getStay(hotel.slug);
   const L = (v: L10n) => t(v, active);
+
+  const pickup = stay.sightseeing.spots.find((spot) => spot.pickup);
+  const spots = stay.sightseeing.spots.filter((spot) => spot !== pickup);
 
   const sections = (['rooms', 'dining', 'access', 'sightseeing'] as const).map((id) => ({
     id,
@@ -225,35 +248,68 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
         <div className="shell-wide">
           <SectionHeading eyebrow="Guest Rooms" title={L(S.rooms)} lead={L(stay.rooms.lead)} />
 
-          <div
-            className={`mt-14 grid gap-x-7 gap-y-14 md:mt-20 ${stay.rooms.items.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}
-          >
+          <div className="mt-14 space-y-20 md:mt-20 md:space-y-28">
             {stay.rooms.items.map((room, i) => (
-              <article key={i}>
-                <RevealImage delay={i * 0.1}>
-                  <div className="relative aspect-4/3 w-full overflow-hidden">
-                    <Image
-                      src={room.image}
-                      alt={L(room.name)}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover transition-transform duration-[1.4s] ease-(--ease-out-expo) hover:scale-[1.04]"
-                    />
-                  </div>
+              <article
+                key={i}
+                className={`grid items-start gap-10 lg:gap-16 ${
+                  i % 2 === 1 ? 'lg:grid-cols-[0.85fr_1.15fr] lg:[&>*:first-child]:order-2' : 'lg:grid-cols-[1.15fr_0.85fr]'
+                }`}
+              >
+                <RevealImage>
+                  <RoomGallery images={[room.image, ...(room.gallery ?? [])]} alt={L(room.name)} />
                 </RevealImage>
-                <Reveal delay={0.12 + i * 0.08}>
-                  <p className={`${LABEL} mt-6`}>Room {String(i + 1).padStart(2, '0')}</p>
-                  <h3 className="type-mincho mt-2 text-[1.2rem] text-ink md:text-[1.35rem]">{L(room.name)}</h3>
-                  {room.specs && (
-                    <ul className="mt-4 flex flex-wrap gap-2">
-                      {room.specs.map((spec, k) => (
-                        <li key={k} className="border border-ink/15 px-3 py-1 text-[0.6875rem] tracking-[0.12em] text-ink/70">
-                          {L(spec)}
-                        </li>
+
+                <Reveal delay={0.1}>
+                  <p className={LABEL}>
+                    Room {String(i + 1).padStart(2, '0')} — {active === 'ja' ? room.name.en : room.name.ja}
+                  </p>
+                  <h3 className="type-mincho mt-3 text-[1.35rem] text-ink md:text-[1.6rem]">{L(room.name)}</h3>
+                  <p className="type-body mt-6 text-[0.9rem]">{L(room.body)}</p>
+
+                  {room.facts ? (
+                    <dl className="mt-8 divide-y divide-ink/10 border-y border-ink/10">
+                      {room.facts.map((fact, k) => (
+                        <div key={k} className="grid grid-cols-[7rem_1fr] gap-4 py-3">
+                          <dt className="text-[0.6875rem] tracking-[0.2em] text-stone">{L(fact.label)}</dt>
+                          <dd className="text-sm text-ink/80">{L(fact.value)}</dd>
+                        </div>
                       ))}
-                    </ul>
+                    </dl>
+                  ) : (
+                    room.specs && (
+                      <ul className="mt-6 flex flex-wrap gap-2">
+                        {room.specs.map((spec, k) => (
+                          <li key={k} className="border border-ink/15 px-3 py-1 text-[0.6875rem] tracking-[0.12em] text-ink/70">
+                            {L(spec)}
+                          </li>
+                        ))}
+                      </ul>
+                    )
                   )}
-                  <p className="type-body mt-5 text-[0.9rem]">{L(room.body)}</p>
+
+                  {room.amenities && (
+                    <>
+                      <p className={`${LABEL} mt-8`}>{L(S.amenities)}</p>
+                      <ul className="mt-3 flex flex-wrap gap-2">
+                        {room.amenities.map((item, k) => (
+                          <li key={k} className="bg-page px-3 py-1.5 text-[0.75rem] text-ink/75">
+                            {L(item)}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+
+                  <div className="mt-9">
+                    <ButtonLink
+                      href={hotel.booking?.[0]?.href ?? localePath(active, '/reservation')}
+                      external={Boolean(hotel.booking?.[0])}
+                      variant="brass"
+                    >
+                      {L(S.bookRoom)}
+                    </ButtonLink>
+                  </div>
                 </Reveal>
               </article>
             ))}
@@ -348,6 +404,50 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
             height="h-[24rem] lg:h-full lg:min-h-[34rem]"
           />
         </div>
+
+        {stay.access.journeys && (
+          <div className="shell-wide border-t border-ink/10 py-16 md:py-20">
+            <Reveal>
+              <p className="type-eyebrow">Route Guide</p>
+              <h3 className="type-mincho mt-3 text-[1.25rem] text-ink md:text-[1.4rem]">{L(S.routeGuide)}</h3>
+            </Reveal>
+            <div className="mt-8 grid gap-5 lg:grid-cols-2">
+              {stay.access.journeys.map((journey, i) => (
+                <Reveal key={i} delay={(i % 2) * 0.08} className="border border-ink/10 bg-page p-6 md:p-8">
+                  <p className="text-[0.8125rem] tracking-[0.08em] text-brass">{L(journey.title)}</p>
+                  <ol className="mt-5 flex flex-col md:flex-row md:items-center">
+                    {journey.steps.map((step, k) => {
+                      const last = k === journey.steps.length - 1;
+                      return (
+                        <Fragment key={k}>
+                          <li
+                            className={`px-3 py-3 text-center text-[0.8125rem] leading-snug md:min-w-[6rem] ${
+                              last ? 'bg-ink text-washi' : 'border border-ink/15 text-ink'
+                            }`}
+                          >
+                            {L(step.place)}
+                          </li>
+                          {step.leg && (
+                            <li className="relative flex items-center gap-3 py-4 pl-4 md:flex-1 md:flex-col md:gap-1.5 md:px-2 md:py-0">
+                              <span aria-hidden className="absolute inset-y-0 left-[1.75rem] w-px bg-brass/50 md:hidden" />
+                              <span aria-hidden className="absolute inset-x-0 top-3.5 hidden h-px bg-brass/50 md:block" />
+                              <span className="relative flex size-7 shrink-0 items-center justify-center rounded-full bg-brass text-washi">
+                                <ModeIcon mode={step.leg.mode} />
+                              </span>
+                              <span className="relative text-[0.75rem] leading-snug whitespace-nowrap text-ink/75 md:text-center">
+                                {L(step.leg.text)}
+                              </span>
+                            </li>
+                          )}
+                        </Fragment>
+                      );
+                    })}
+                  </ol>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* 周辺観光 --------------------------------------------------------- */}
@@ -355,9 +455,11 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
         <div className="shell-wide">
           <SectionHeading eyebrow="Sightseeing" title={L(S.sightseeing)} lead={L(stay.sightseeing.lead)} />
 
-          <div className="mt-14 grid gap-px border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-3 md:mt-20">
-            {stay.sightseeing.spots.map((spot, i) => (
-              <Reveal key={i} delay={(i % 3) * 0.08} className="bg-page">
+          {pickup && <PickupSpot spot={pickup} active={active} />}
+
+          <div className="mt-14 grid border-t border-l border-ink/10 sm:grid-cols-2 lg:grid-cols-3 md:mt-20">
+            {spots.map((spot, i) => (
+              <Reveal key={i} delay={(i % 3) * 0.08} className="border-r border-b border-ink/10 bg-page">
                 <article className="group flex h-full flex-col">
                   {spot.image ? (
                     <div className="relative aspect-16/10 w-full overflow-hidden">
@@ -370,9 +472,21 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
                       />
                     </div>
                   ) : (
-                    // No photo supplied yet: an ink panel with the name in the other language keeps the grid even.
-                    <div className="flex aspect-16/10 w-full items-end bg-ink p-7 md:p-9">
-                      <span className="type-display text-[1.05rem] leading-snug tracking-[0.06em] text-brass-lit">
+                    // No photo supplied yet: a light map-grid panel with the name keeps the grid even.
+                    <div className="relative flex aspect-16/10 w-full flex-col items-center justify-center gap-4 bg-page-2 p-7 text-center">
+                      <span
+                        aria-hidden
+                        className="absolute inset-0 opacity-60"
+                        style={{
+                          backgroundImage:
+                            'linear-gradient(var(--color-page-3) 1px, transparent 1px), linear-gradient(90deg, var(--color-page-3) 1px, transparent 1px)',
+                          backgroundSize: '36px 36px',
+                        }}
+                      />
+                      <span aria-hidden className="relative flex size-10 items-center justify-center rounded-full border border-brass/60 bg-page">
+                        <span className="size-2 rounded-full bg-brass" />
+                      </span>
+                      <span className="relative type-display text-[0.9375rem] leading-snug tracking-[0.06em] text-brass">
                         {active === 'ja' ? spot.name.en : spot.name.ja}
                       </span>
                     </div>
@@ -380,7 +494,7 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
                   <div className="flex flex-1 flex-col p-7 md:p-9">
                     <div className="flex items-center justify-between gap-4">
                       <span className="type-display text-[2rem] leading-none text-brass/70">
-                        {String(i + 1).padStart(2, '0')}
+                        {String(i + (pickup ? 2 : 1)).padStart(2, '0')}
                       </span>
                       <span className="rounded-full bg-ink px-3.5 py-1.5 text-[0.6875rem] tracking-[0.08em] text-washi">
                         {L(spot.time)}
@@ -388,14 +502,7 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
                     </div>
                     <h3 className="type-mincho mt-6 text-[1.15rem] leading-snug text-ink md:text-[1.25rem]">{L(spot.name)}</h3>
                     <p className="type-body mt-3 flex-1 text-[0.875rem]">{L(spot.body)}</p>
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.query)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-6 inline-flex items-center gap-2 self-start border-b border-ink/25 pb-1 text-[0.75rem] tracking-[0.16em] text-ink transition-colors hover:border-brass hover:text-brass"
-                    >
-                      {L(S.viewMap)} <span aria-hidden>→</span>
-                    </a>
+                    <SpotLinks spot={spot} active={active} className="mt-6" />
                   </div>
                 </article>
               </Reveal>
@@ -406,6 +513,55 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
               {active === 'ja' ? '※所要時間は目安です。交通状況により異なります。' : '* Travel times are approximate and vary with traffic.'}
             </p>
           </Reveal>
+
+          {stay.sightseeing.events && (
+            <div className="mt-24 md:mt-32">
+              <SectionHeading eyebrow="Seasonal Events" title={L(S.events)} lead={L(S.eventsLead)} />
+              <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 md:mt-16">
+                {stay.sightseeing.events.map((event, i) => {
+                  const season = SEASON[event.season];
+                  return (
+                    <Reveal key={i} delay={(i % 4) * 0.08}>
+                      <article className="flex h-full flex-col">
+                        <span
+                          className="type-mincho mx-auto flex size-11 items-center justify-center rounded-full text-[1.05rem] text-ink"
+                          style={{ backgroundColor: season.tint }}
+                          title={season.en}
+                        >
+                          {season.mark}
+                        </span>
+                        <h4 className="type-mincho mt-4 text-center text-[1.05rem] text-ink">{L(event.name)}</h4>
+                        <dl className="mt-4 space-y-1 px-4 py-3 text-[0.75rem] text-ink/75" style={{ backgroundColor: season.tint }}>
+                          <div>
+                            <dt className="inline">{active === 'ja' ? '開催日／' : 'When: '}</dt>
+                            <dd className="inline">{L(event.when)}</dd>
+                          </div>
+                          <div>
+                            <dt className="inline">{active === 'ja' ? '開催場所／' : 'Where: '}</dt>
+                            <dd className="inline">{L(event.place)}</dd>
+                          </div>
+                        </dl>
+                        <p className="type-body mt-4 flex-1 text-[0.8125rem]">{L(event.body)}</p>
+                        <a
+                          href={mapsUrl(event.query)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-4 inline-flex items-center gap-2 self-start border-b border-ink/25 pb-1 text-[0.75rem] tracking-[0.16em] text-ink transition-colors hover:border-brass hover:text-brass"
+                        >
+                          {L(S.viewMap)} <span aria-hidden>→</span>
+                        </a>
+                      </article>
+                    </Reveal>
+                  );
+                })}
+              </div>
+              <Reveal delay={0.1}>
+                <p className="mt-6 text-right text-[0.6875rem] text-stone">
+                  {active === 'ja' ? '※開催日程は年により変わります。公式情報をご確認ください。' : '* Dates change each year; please check the official information.'}
+                </p>
+              </Reveal>
+            </div>
+          )}
         </div>
       </section>
 
@@ -466,6 +622,50 @@ function BlockRows({ blocks, active }: { blocks: Hotel['highlights']; active: Lo
         </div>
       ))}
     </>
+  );
+}
+
+/** 地図で見る + 公式サイト links under a sightseeing spot. */
+function SpotLinks({ spot, active, className = '' }: { spot: Spot; active: Locale; className?: string }) {
+  const link =
+    'inline-flex items-center gap-2 border-b border-ink/25 pb-1 text-[0.75rem] tracking-[0.16em] text-ink transition-colors hover:border-brass hover:text-brass';
+  return (
+    <div className={`flex flex-wrap gap-x-6 gap-y-3 ${className}`}>
+      <a href={mapsUrl(spot.query)} target="_blank" rel="noopener noreferrer" className={link}>
+        {t(S.viewMap, active)} <span aria-hidden>→</span>
+      </a>
+      {spot.site && (
+        <a href={spot.site} target="_blank" rel="noopener noreferrer" className={link}>
+          {t(S.officialSite, active)} <span aria-hidden>↗</span>
+        </a>
+      )}
+    </div>
+  );
+}
+
+/** The featured "Pick up" spot, shown large above the sightseeing grid. */
+function PickupSpot({ spot, active }: { spot: Spot; active: Locale }) {
+  return (
+    <Reveal className="mt-14 md:mt-20">
+      <article className="grid overflow-hidden bg-page-2 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="flex flex-col justify-center p-8 md:p-12">
+          <p className="type-eyebrow">Pick up</p>
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <h3 className="type-mincho text-[1.35rem] text-ink md:text-[1.6rem]">{t(spot.name, active)}</h3>
+            <span className="rounded-full bg-ink px-3.5 py-1.5 text-[0.6875rem] tracking-[0.08em] text-washi">
+              {t(spot.time, active)}
+            </span>
+          </div>
+          <p className="type-body mt-5 text-[0.9rem]">{t(spot.body, active)}</p>
+          <SpotLinks spot={spot} active={active} className="mt-8" />
+        </div>
+        {spot.image && (
+          <div className="relative aspect-16/10 w-full lg:aspect-auto lg:min-h-[22rem]">
+            <Image src={spot.image} alt={t(spot.name, active)} fill sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover" />
+          </div>
+        )}
+      </article>
+    </Reveal>
   );
 }
 
