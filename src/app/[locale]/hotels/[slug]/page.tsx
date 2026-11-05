@@ -1,25 +1,20 @@
-import { Fragment } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
-import { PageHero } from '@/components/sections/PageHero';
-import { GroupBookingCTA } from '@/components/sections/GroupBookingCTA';
-import { Reveal, RevealImage } from '@/components/motion/Reveal';
-import { SplitText } from '@/components/motion/SplitText';
-import { Parallax } from '@/components/motion/Parallax';
-import { SectionHeading } from '@/components/ui/SectionHeading';
-import { Gallery } from '@/components/ui/Gallery';
+import { Reveal } from '@/components/motion/Reveal';
 import { MapEmbed } from '@/components/ui/MapEmbed';
 import { VideoEmbed } from '@/components/ui/VideoEmbed';
-import { ButtonLink } from '@/components/ui/ArrowLink';
-import { HotelSectionNav } from '@/components/hotel/HotelSectionNav';
+import { HotelHeader } from '@/components/hotel/HotelHeader';
 import { RoomGallery } from '@/components/hotel/RoomGallery';
 
 import { getHotel, hotels, type Hotel } from '@/content/hotels';
 import { getStay, type RouteMode, type Season, type Spot } from '@/content/hotelStay';
 import { getDictionary } from '@/content/dictionary';
 import { isLocale, locales, localePath, t, type L10n, type Locale } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 export function generateStaticParams() {
   return locales.flatMap((locale) => hotels.map((h) => ({ locale, slug: h.slug })));
@@ -43,21 +38,18 @@ export async function generateMetadata({
   };
 }
 
-const LABEL = 'text-[0.625rem] tracking-[0.28em] text-stone uppercase';
+/** Clears the pinned hotel header when an in-page link lands. */
+const ANCHOR = 'scroll-mt-28 md:scroll-mt-32 lg:scroll-mt-36';
 
-/** Lenis adds scroll-margin-top to its -80px header offset, so this clears the sub-nav. */
-const ANCHOR = 'scroll-mt-12 md:scroll-mt-[4.75rem]';
-
-/** Labels for the common template (客室・お食事・アクセス・周辺観光). */
+/** Labels for the sections added to the live layout (客室・お食事・アクセス・周辺観光). */
 const S = {
-  rooms: { ja: '客室', en: 'Rooms' },
+  rooms: { ja: '客室', en: 'Guest rooms' },
   dining: { ja: 'お食事', en: 'Dining' },
   access: { ja: 'アクセス', en: 'Access' },
   sightseeing: { ja: '周辺観光', en: 'Sightseeing' },
   checkIn: { ja: 'チェックイン', en: 'Check-in' },
   checkOut: { ja: 'チェックアウト', en: 'Check-out' },
   parking: { ja: '駐車場', en: 'Parking' },
-  fromHotel: { ja: 'ホテルから', en: 'From the hotel' },
   viewMap: { ja: '地図で見る', en: 'View on map' },
   routes: { ja: '交通のご案内', en: 'Getting here' },
   routeGuide: { ja: 'ルート案内', en: 'Route guide' },
@@ -69,13 +61,21 @@ const S = {
     ja: '四季折々の祭りや行事に合わせて、旅の日程を選ぶのもおすすめです。',
     en: 'Plan your trip around the festivals and events of each season.',
   },
+  features: { ja: 'ホテルの特徴', en: 'Hotel features' },
+  hotelInfo: { ja: 'ホテル情報', en: 'Hotel information' },
+  groupDesk: { ja: '団体受付', en: 'Group desk' },
+  groupTitle: { ja: '団体予約はこちらから', en: 'Group bookings' },
+  checkAvailability: { ja: 'ホテルの空き情報を確認する', en: 'Check availability' },
+  contactForm: { ja: 'お問い合わせフォームへ', en: 'To the contact form' },
+  telLabel: { ja: '電話番号', en: 'Tel' },
+  faxLabel: { ja: 'FAX番号', en: 'Fax' },
 } satisfies Record<string, L10n>;
 
-const SEASON: Record<Season, { mark: string; en: string; tint: string }> = {
-  spring: { mark: '春', en: 'Spring', tint: '#f4e1e1' },
-  summer: { mark: '夏', en: 'Summer', tint: '#e0ead8' },
-  autumn: { mark: '秋', en: 'Autumn', tint: '#f1e6c6' },
-  winter: { mark: '冬', en: 'Winter', tint: '#dde6ec' },
+const SEASON: Record<Season, { mark: string; en: string }> = {
+  spring: { mark: '春', en: 'Spring' },
+  summer: { mark: '夏', en: 'Summer' },
+  autumn: { mark: '秋', en: 'Autumn' },
+  winter: { mark: '冬', en: 'Winter' },
 };
 
 const mapsUrl = (query: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
@@ -89,8 +89,29 @@ const MODE_LABEL: Record<RouteMode, L10n> = {
 };
 
 /**
- * Common hotel template. Order: reserve strip, sub-nav, ABOUT, WHATS SPECIAL,
- * MOVIE, 客室, お食事, GALLERY, アクセス, 周辺観光, RESERVATION, group CTA.
+ * Photos the live STUDIO pages use that the hotel content does not carry
+ * (hero, about portraits, the wide exterior, the four-photo strip). Only Fuji
+ * has been pulled so far; the other hotels fall back to their own content.
+ */
+const LIVE_ART: Partial<
+  Record<Hotel['slug'], { hero: string; thumb: string; about: [string, string]; wide: string; strip: string[]; ratings: boolean }>
+> = {
+  fuji: {
+    hero: '/images/live/fuji/u6.jpg',
+    thumb: '/images/live/fuji/u5.jpg',
+    about: ['/images/live/fuji/about-1.webp', '/images/live/fuji/about-2.webp'],
+    wide: '/images/live/fuji/building.webp',
+    strip: ['/images/live/fuji/u2.jpg', '/images/live/fuji/u1.jpg', '/images/live/fuji/u3.jpg', '/images/live/fuji/u4.jpg'],
+    ratings: true,
+  },
+};
+
+/**
+ * The live hotel page, kept as it is (own header, inset hero with the reserve
+ * card and the black group box, ratings, ABOUT, MOVIE, WHATS SPECIAL, photo
+ * strip, hotel information), with the estimate's common sections added in
+ * the same look: 客室 after the features, お食事, then アクセス and 周辺観光
+ * around the strip.
  */
 export default async function HotelPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   const { locale, slug } = await params;
@@ -100,179 +121,199 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
 
   const active = locale as Locale;
   const dict = getDictionary(active);
-  const H = dict.hotel;
   const title = hotel.pageTitle ?? hotel.name;
   const stay = getStay(hotel.slug);
   const L = (v: L10n) => t(v, active);
+  const art = LIVE_ART[hotel.slug];
 
   const pickup = stay.sightseeing.spots.find((spot) => spot.pickup);
   const spots = stay.sightseeing.spots.filter((spot) => spot !== pickup);
+  const reserveHref = hotel.booking?.[0]?.href ?? localePath(active, '/reservation');
+  const strip = art?.strip ?? [...hotel.gallery, hotel.hero].slice(0, 4);
 
-  const sections = (['rooms', 'dining', 'access', 'sightseeing'] as const).map((id) => ({
-    id,
-    label: L(S[id]),
-    en: S[id].en,
-  }));
+  const aboutRows = [
+    { title: undefined, body: `${L(hotel.about.lede)}\n\n${L(hotel.about.body)}`, image: art?.about[0] ?? hotel.hub.image },
+    ...hotel.highlights.map((block, i) => ({
+      title: L(block.title),
+      body: L(block.body),
+      image: i === 0 && art ? art.about[1] : block.image,
+    })),
+  ];
 
   return (
-    <>
-      <PageHero
-        eyebrow={t(hotel.location, active)}
-        title={title}
-        lead={`${t(hotel.tagline, active)}\n\n${hotel.heroEn}`}
-        image={hotel.hero}
-        alt={title}
+    <div id="top">
+      <HotelHeader
+        name={title}
+        stars={hotel.stars}
+        reserveHref={reserveHref}
+        homeHref={localePath(active)}
+        links={[
+          { id: 'top', label: 'TOP' },
+          { id: 'about', label: 'ABOUT' },
+          { id: 'special', label: 'SPECIALITY' },
+          { id: 'rooms', label: 'ROOMS' },
+          { id: 'dining', label: 'DINING' },
+          { id: 'access', label: 'ACCESS' },
+          { id: 'sightseeing', label: 'SIGHTSEEING' },
+        ]}
       />
 
-      {/* Rank, review, rooms, RESERVE ------------------------------------- */}
-      <section className="border-b border-ink/10 bg-page-2">
-        <div className="shell flex flex-wrap items-center justify-between gap-x-10 gap-y-6 py-8">
-          <Reveal direction="none">
-            <div className="flex items-baseline gap-4">
-              <span className={LABEL}>Hotel Rank</span>
-              <span className="text-sm tracking-[0.32em] text-brass">{'★'.repeat(hotel.stars)}</span>
-            </div>
-          </Reveal>
+      {/* Hero ------------------------------------------------------------ */}
+      <section className="relative pb-28 md:pb-16">
+        <div className="relative mx-auto h-[26rem] overflow-hidden md:mx-[4.2%] md:h-[clamp(30rem,45vw,41rem)]">
+          <Image src={art?.hero ?? hotel.hero} alt={title} fill priority sizes="100vw" className="object-cover" />
+          <div className="absolute inset-0 bg-black/15" />
+          <div className="relative flex h-full flex-col items-center justify-center px-5 text-center text-white [text-shadow:0_1px_10px_rgba(0,0,0,0.25)] md:-mt-6">
+            <h1 className="font-[family-name:var(--font-tenor)] text-[clamp(1.6rem,3vw,2.6rem)] tracking-[0.15em]">{title}</h1>
+            <p className="mt-1 text-[1.1rem] tracking-[0.2em] md:text-[1.35rem]">{'★'.repeat(hotel.stars)}</p>
+            <p className="mt-5 text-[clamp(1.05rem,1.6vw,1.45rem)] tracking-[0.08em]">{L(hotel.tagline)}</p>
+            <p className="mt-6 font-[family-name:var(--font-tenor)] text-[0.875rem] leading-[1.7] tracking-[0.15em] whitespace-pre-line md:text-base">
+              {hotel.heroEn}
+            </p>
+          </div>
+        </div>
 
-          {hotel.rating && (
-            <Reveal direction="none" delay={0.08}>
-              <div className="flex items-baseline gap-3">
-                <span className={LABEL}>Review</span>
-                <span className="type-display text-2xl text-ink">{hotel.rating.score}</span>
-                <span className="text-xs text-stone">/ 5</span>
-                <span className="text-[0.625rem] text-stone/80">({hotel.rating.asOf})</span>
-              </div>
-            </Reveal>
-          )}
+        {/* Reserve card, bottom left, overlapping the photo. */}
+        <a
+          href={reserveHref}
+          target={hotel.booking ? '_blank' : undefined}
+          rel="noopener noreferrer"
+          className="group absolute bottom-6 left-0 z-10 flex w-[min(92%,36rem)] items-center gap-4 bg-white py-4 pr-6 pl-3 shadow-[0_10px_30px_rgba(0,0,0,0.15)] md:bottom-0 md:gap-5"
+        >
+          <span className="writing-vertical font-[family-name:var(--font-tenor)] text-[0.6875rem] tracking-[0.15em] text-ink-mute">RESERVE</span>
+          <span className="relative block h-[5.5rem] w-[7.5rem] shrink-0 overflow-hidden">
+            <Image src={art?.thumb ?? hotel.gallery[0] ?? hotel.hero} alt="" fill sizes="120px" className="object-cover" />
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col gap-4">
+            <span className="text-[0.8125rem] text-black">{L(S.checkAvailability)}</span>
+            <span className="self-end border-b border-black font-[family-name:var(--font-tenor)] text-[0.8125rem] tracking-[0.15em] text-black group-hover:opacity-60">
+              RESERVE
+            </span>
+          </span>
+        </a>
 
-          {hotel.info.rooms && (
-            <Reveal direction="none" delay={0.16}>
-              <div className="flex items-baseline gap-4">
-                <span className={LABEL}>{dict.common.rooms}</span>
-                <span className="type-display text-sm text-ink">{t(hotel.info.rooms, active)}</span>
-              </div>
-            </Reveal>
-          )}
-
-          {hotel.booking && (
-            <Reveal direction="none" delay={0.22}>
-              <div className="flex flex-wrap items-center gap-3">
-                <span className={LABEL}>Reserve</span>
-                <span className="mr-1 text-[0.8125rem] text-ink/70">{H.checkAvailability}</span>
-                {hotel.booking.map((b) => (
-                  <ButtonLink key={b.href} href={b.href} external variant="outline" className="px-5 py-2.5 text-[0.6875rem]">
-                    {b.label}
-                  </ButtonLink>
-                ))}
-              </div>
-            </Reveal>
-          )}
+        {/* Black group box, bottom right. */}
+        <div className="absolute right-0 bottom-0 z-10 hidden w-[19rem] flex-col items-center bg-black px-8 py-8 text-white md:flex lg:w-[24rem]">
+          <p className="text-[1.5rem] font-medium">{L(S.groupTitle)}</p>
+          <a href="tel:08040979552" className="mt-3 flex items-center gap-3 text-[0.9375rem] hover:opacity-75">
+            <PhoneIcon /> {L(S.groupDesk)}　080-4097-9552
+          </a>
         </div>
       </section>
 
-      <HotelSectionNav links={sections} />
+      {/* Phone: the group box sits under the hero instead of over it. */}
+      <a href="tel:08040979552" className="mx-5 -mt-2 mb-4 flex flex-col items-center bg-black px-6 py-5 text-white md:hidden">
+        <span className="text-[1.15rem] font-medium">{L(S.groupTitle)}</span>
+        <span className="mt-2 flex items-center gap-2 text-[0.875rem]">
+          <PhoneIcon /> {L(S.groupDesk)}　080-4097-9552
+        </span>
+      </a>
 
-      {/* ABOUT OUR HOTEL -------------------------------------------------- */}
-      <section className="relative py-24 md:py-32">
-        <div className="shell">
-          <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
-            <div>
-              <Reveal>
-                <p className="type-eyebrow">About — Our Hotel</p>
-              </Reveal>
-              <SplitText
-                as="h2"
-                text={t(hotel.about.title, active)}
-                delay={0.06}
-                className="type-display mt-5 text-[clamp(1.4rem,3vw,2.25rem)] text-ink"
-              />
-              <Reveal delay={0.18}>
-                <p className="type-mincho mt-8 text-[1.05rem] text-brass">{t(hotel.about.lede, active)}</p>
-              </Reveal>
-            </div>
-
-            <Reveal delay={0.12}>
-              <p className="type-body whitespace-pre-line">{t(hotel.about.body, active)}</p>
-            </Reveal>
-          </div>
-
-          <div className="mt-24 space-y-20 md:mt-32 md:space-y-28">
-            <BlockRows blocks={hotel.highlights} active={active} />
-          </div>
-        </div>
-      </section>
-
-      {/* WHATS SPECIAL ---------------------------------------------------- */}
-      <section className="relative border-t border-ink/10 py-24 md:py-32">
-        <div className="shell-wide">
-          <SectionHeading eyebrow="Whats Special" title={dict.common.features} />
-          <Reveal delay={0.12}>
-            <p className="type-body mx-auto mt-8 max-w-3xl text-center">{t(hotel.special.intro, active)}</p>
-          </Reveal>
-
-          <div className="mt-16 space-y-20 md:space-y-28">
-            <BlockRows blocks={hotel.special.blocks} active={active} />
-          </div>
-        </div>
-      </section>
-
-      {/* THE HOTEL MOVIE -------------------------------------------------- */}
-      {hotel.youtubeId && (
-        <section className="relative border-y border-ink/10">
-          <div className="shell-wide py-16 md:py-24">
-            <SectionHeading eyebrow="The Hotel" title="MOVIE" className="mb-10" />
-            <RevealImage>
-              <VideoEmbed
-                id={hotel.youtubeId}
-                poster={hotel.gallery[0] ?? hotel.hero}
-                label={active === 'ja' ? '動画を再生' : 'Play film'}
-                title={title}
-              />
-            </RevealImage>
-            {hotel.movieText && (
-              <Reveal delay={0.1}>
-                <p className="type-body mx-auto mt-12 max-w-3xl text-center">{t(hotel.movieText, active)}</p>
-              </Reveal>
-            )}
-            <Reveal delay={0.16} className="mt-10 text-center">
-              <ButtonLink href={localePath(active, '/contact')} variant="outline">
-                {H.contactForm}
-              </ButtonLink>
-            </Reveal>
-          </div>
+      {/* Ratings ---------------------------------------------------------- */}
+      {art?.ratings && hotel.rating && (
+        <section className="mx-auto grid max-w-[64rem] grid-cols-3 items-start gap-4 px-5 py-12 text-center md:py-16">
+          <Rating logo="/images/live/fuji/rate-google.webp" w={300} h={59} label="Review">
+            <span className="text-star">★★★★★</span>
+            <span className="ml-2 text-[1.35rem] text-ink-mute md:text-[1.75rem]">{hotel.rating.score}</span>
+            <span className="text-ink-mute"> / 5</span>
+            <span className="ml-1 text-[0.5625rem] text-ink-mute">({hotel.rating.asOf})</span>
+          </Rating>
+          <Rating logo="/images/live/fuji/rate-agoda.webp" w={126} h={65} label="Hotel Rank">
+            <span className="text-star">{'★'.repeat(hotel.stars)}</span>
+          </Rating>
+          <Rating logo="/images/live/fuji/rate-booking.webp" w={238} h={40} label="Hotel Rank">
+            <span className="text-star">{'★'.repeat(hotel.stars)}</span>
+          </Rating>
         </section>
       )}
 
-      {/* 客室 ------------------------------------------------------------- */}
-      <section id="rooms" className={`relative border-t border-ink/10 bg-page-2 py-24 md:py-32 ${ANCHOR}`}>
-        <div className="shell-wide">
-          <SectionHeading eyebrow="Guest Rooms" title={L(S.rooms)} lead={L(stay.rooms.lead)} />
+      <SplitPanel>
+        {/* ABOUT ---------------------------------------------------------- */}
+        <section id="about" className={cn('pt-20 pb-10 md:pt-24', ANCHOR)}>
+          <LiveHeading en={'ABOUT\nOUR HOTEL'} title={L(hotel.about.title)} />
+          <div className="mt-16 space-y-20 md:mt-24 md:space-y-24">
+            {aboutRows.map((row, i) => (
+              <PhotoRow key={i} image={row.image} title={row.title} body={row.body} flip={i % 2 === 1} portrait />
+            ))}
+          </div>
+        </section>
 
-          <div className="mt-14 space-y-20 md:mt-20 md:space-y-28">
+        {/* MOVIE ---------------------------------------------------------- */}
+        {hotel.youtubeId && (
+          <section className="pt-20 pb-16 md:pt-28">
+            <LiveHeading en={'THE HOTEL\nMOVIE'} />
+            <Reveal className="mx-auto mt-12 max-w-[37.5rem] px-5">
+              <VideoEmbed
+                id={hotel.youtubeId}
+                poster={art?.wide ?? hotel.gallery[0] ?? hotel.hero}
+                label={active === 'ja' ? '動画を再生' : 'Play film'}
+                title={title}
+              />
+            </Reveal>
+            {hotel.movieText && (
+              <Reveal className="mx-auto mt-12 max-w-[46rem] px-5">
+                <p className="type-body text-[0.8125rem]">{L(hotel.movieText)}</p>
+              </Reveal>
+            )}
+            <div className="mt-10 text-center">
+              <Link href={localePath(active, '/contact')} className="btn-live">
+                {L(S.contactForm)}
+              </Link>
+            </div>
+          </section>
+        )}
+
+        {art?.wide && (
+          <div className="relative aspect-[1340/900] w-full md:aspect-[1340/640]">
+            <Image src={art.wide} alt={title} fill sizes="(max-width: 1340px) 100vw, 1340px" className="object-cover" />
+          </div>
+        )}
+
+        {/* WHATS SPECIAL -------------------------------------------------- */}
+        <section id="special" className={cn('pt-20 pb-24 md:pt-28', ANCHOR)}>
+          <LiveHeading en="WHATS SPECIAL" title={L(S.features)} lead={L(hotel.special.intro)} />
+          <div className="mt-16 space-y-20 md:mt-20 md:space-y-16">
+            {hotel.special.blocks.map((block, i) => (
+              <PhotoRow
+                key={i}
+                image={i === 0 && art ? art.about[1] : block.image}
+                title={L(block.title)}
+                body={L(block.body)}
+                flip={i % 2 === 1}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* 客室 (new) ----------------------------------------------------- */}
+        <section id="rooms" className={cn('pt-20 pb-24 md:pt-24', ANCHOR)}>
+          <LiveHeading en="GUEST ROOMS" title={L(S.rooms)} lead={L(stay.rooms.lead)} />
+          <div className="mt-16 space-y-20 md:mt-20 md:space-y-24">
             {stay.rooms.items.map((room, i) => (
               <article
                 key={i}
-                className={`grid items-start gap-10 lg:gap-16 ${
-                  i % 2 === 1 ? 'lg:grid-cols-[0.85fr_1.15fr] lg:[&>*:first-child]:order-2' : 'lg:grid-cols-[1.15fr_0.85fr]'
-                }`}
+                className={cn(
+                  'mx-auto grid max-w-[71rem] items-start gap-10 px-5 md:grid-cols-2 md:gap-14 md:px-10',
+                  i % 2 === 1 && 'md:[&>*:first-child]:order-2',
+                )}
               >
-                <RevealImage>
+                <Reveal>
                   <RoomGallery images={[room.image, ...(room.gallery ?? [])]} alt={L(room.name)} />
-                </RevealImage>
+                </Reveal>
 
-                <Reveal delay={0.1}>
-                  <p className={LABEL}>
-                    Room {String(i + 1).padStart(2, '0')} — {active === 'ja' ? room.name.en : room.name.ja}
+                <Reveal delay={0.08} className="md:pt-4">
+                  <p className="font-[family-name:var(--font-tenor)] text-[0.75rem] tracking-[0.15em] text-ink-mute uppercase">
+                    Room {String(i + 1).padStart(2, '0')}
                   </p>
-                  <h3 className="type-mincho mt-3 text-[1.35rem] text-ink md:text-[1.6rem]">{L(room.name)}</h3>
-                  <p className="type-body mt-6 text-[0.9rem]">{L(room.body)}</p>
+                  <h3 className="mt-2 text-[1.125rem] font-medium tracking-[0.08em] text-black md:text-[1.25rem]">{L(room.name)}</h3>
+                  <p className="type-body mt-5 text-[0.8125rem]">{L(room.body)}</p>
 
                   {room.facts ? (
-                    <dl className="mt-8 divide-y divide-ink/10 border-y border-ink/10">
+                    <dl className="mt-7 border-t border-black/15">
                       {room.facts.map((fact, k) => (
-                        <div key={k} className="grid grid-cols-[7rem_1fr] gap-4 py-3">
-                          <dt className="text-[0.6875rem] tracking-[0.2em] text-stone">{L(fact.label)}</dt>
-                          <dd className="text-sm text-ink/80">{L(fact.value)}</dd>
+                        <div key={k} className="grid grid-cols-[6.5rem_1fr] gap-4 border-b border-black/15 py-3 text-[0.8125rem]">
+                          <dt className="text-stone">{L(fact.label)}</dt>
+                          <dd className="text-black">{L(fact.value)}</dd>
                         </div>
                       ))}
                     </dl>
@@ -280,7 +321,7 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
                     room.specs && (
                       <ul className="mt-6 flex flex-wrap gap-2">
                         {room.specs.map((spec, k) => (
-                          <li key={k} className="border border-ink/15 px-3 py-1 text-[0.6875rem] tracking-[0.12em] text-ink/70">
+                          <li key={k} className="rounded-full bg-white px-3.5 py-1 text-[0.75rem] text-ink-mute">
                             {L(spec)}
                           </li>
                         ))}
@@ -290,10 +331,10 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
 
                   {room.amenities && (
                     <>
-                      <p className={`${LABEL} mt-8`}>{L(S.amenities)}</p>
-                      <ul className="mt-3 flex flex-wrap gap-2">
+                      <p className="mt-7 text-[0.75rem] text-stone">{L(S.amenities)}</p>
+                      <ul className="mt-2.5 flex flex-wrap gap-2">
                         {room.amenities.map((item, k) => (
-                          <li key={k} className="bg-page px-3 py-1.5 text-[0.75rem] text-ink/75">
+                          <li key={k} className="rounded-full bg-white px-3.5 py-1.5 text-[0.75rem] text-ink-mute">
                             {L(item)}
                           </li>
                         ))}
@@ -301,140 +342,141 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
                     </>
                   )}
 
-                  <div className="mt-9">
-                    <ButtonLink
-                      href={hotel.booking?.[0]?.href ?? localePath(active, '/reservation')}
-                      external={Boolean(hotel.booking?.[0])}
-                      variant="brass"
-                    >
-                      {L(S.bookRoom)}
-                    </ButtonLink>
-                  </div>
+                  <a
+                    href={reserveHref}
+                    target={hotel.booking ? '_blank' : undefined}
+                    rel="noopener noreferrer"
+                    className="btn-live mt-9"
+                  >
+                    {L(S.bookRoom)}
+                  </a>
                 </Reveal>
               </article>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* お食事 ----------------------------------------------------------- */}
-      <section id="dining" className={`relative border-t border-ink/10 py-24 md:py-32 ${ANCHOR}`}>
-        <div className="shell">
-          <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24">
-            <SectionHeading eyebrow="Dining" title={L(S.dining)} lead={L(stay.dining.lead)} align="left" />
+        {/* お食事 (new) --------------------------------------------------- */}
+        <section id="dining" className={cn('pt-20 pb-24 md:pt-24', ANCHOR)}>
+          <LiveHeading en="DINING" title={L(S.dining)} lead={L(stay.dining.lead)} />
+          <ol className="mx-auto mt-14 max-w-[46rem] space-y-4 px-5">
+            {stay.dining.items.map((item, i) => (
+              <Reveal key={i} delay={i * 0.06}>
+                <li className="grid gap-2 bg-white px-6 py-6 shadow-[0_8px_24px_rgba(0,0,0,0.06)] md:grid-cols-[8.5rem_1fr] md:gap-6 md:px-8">
+                  <p className="font-[family-name:var(--font-tenor)] text-[0.75rem] tracking-[0.15em] text-ink-mute uppercase md:pt-1">
+                    {item.label}
+                  </p>
+                  <div>
+                    <h3 className="text-[1rem] font-medium tracking-[0.06em] text-black">{L(item.title)}</h3>
+                    <p className="type-body mt-2 text-[0.8125rem]">{L(item.body)}</p>
+                  </div>
+                </li>
+              </Reveal>
+            ))}
+          </ol>
+        </section>
+      </SplitPanel>
 
-            <ol className="divide-y divide-ink/10 border-y border-ink/10">
-              {stay.dining.items.map((item, i) => (
-                <li key={i}>
-                  <Reveal delay={i * 0.08}>
-                    <div className="grid gap-3 py-8 md:grid-cols-[9rem_1fr] md:gap-8 md:py-10">
-                      <p className={LABEL}>{item.label}</p>
-                      <div>
-                        <h3 className="type-mincho text-[1.15rem] text-ink md:text-[1.25rem]">{L(item.title)}</h3>
-                        <p className="type-body mt-3 text-[0.9rem]">{L(item.body)}</p>
-                      </div>
-                    </div>
-                  </Reveal>
+      {/* Four-photo strip, full bleed, as on the live page ----------------- */}
+      <div className="grid grid-cols-2 shadow-[0_24px_40px_-12px_rgba(0,0,0,0.25)] md:grid-cols-4">
+        {strip.map((src, i) => (
+          <div key={i} className="relative aspect-square">
+            <Image src={src} alt="" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover" />
+          </div>
+        ))}
+      </div>
+
+      {/* アクセス (new) + the live ホテル情報 block ------------------------- */}
+      <section id="access" className={cn('pt-24 pb-20 md:pt-32', ANCHOR)}>
+        <LiveHeading en="ACCESS" title={L(S.access)} lead={L(stay.access.lead)} />
+
+        <div className="mx-auto mt-16 grid max-w-[76.25rem] gap-12 px-5 lg:grid-cols-2 lg:gap-16">
+          <Reveal>
+            <p className="text-[0.8125rem] text-black">{L(S.hotelInfo)}</p>
+            <a href="tel:08040979552" className="mt-4 flex w-fit items-center gap-4 border-b border-black/30 pr-6 pb-3 text-[1.25rem] text-black">
+              <PhoneIcon size={22} /> {L(S.groupDesk)}　080-4097-9552
+            </a>
+            <ul className="mt-4 space-y-2.5 text-[0.875rem] text-ink-mute">
+              {hotel.info.tel && (
+                <li className="flex items-center gap-4">
+                  <PhoneIcon size={17} /> {L(S.telLabel)}　
+                  <a href={`tel:${hotel.info.tel.replace(/-/g, '')}`}>{hotel.info.tel}</a>
+                </li>
+              )}
+              {hotel.info.fax && (
+                <li className="flex items-center gap-4">
+                  <FaxIcon /> {L(S.faxLabel)}　{hotel.info.fax}
+                </li>
+              )}
+              <li className="flex items-start gap-4">
+                <PinIcon /> <span>{L(hotel.info.address)}</span>
+              </li>
+            </ul>
+
+            {(stay.access.checkIn || stay.access.checkOut || stay.access.parking) && (
+              <dl className="mt-8 border-t border-black/15 text-[0.8125rem]">
+                {stay.access.checkIn && <InfoRow label={L(S.checkIn)} value={stay.access.checkIn} />}
+                {stay.access.checkOut && <InfoRow label={L(S.checkOut)} value={stay.access.checkOut} />}
+                {stay.access.parking && <InfoRow label={L(S.parking)} value={L(stay.access.parking)} />}
+              </dl>
+            )}
+
+            <p className="mt-10 text-[0.8125rem] text-black">{L(S.routes)}</p>
+            <ul className="mt-3 space-y-3">
+              {stay.access.routes.map((route, i) => (
+                <li key={i} className="flex items-start gap-4 bg-page-3 px-5 py-4">
+                  <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-black text-white">
+                    <ModeIcon mode={route.mode} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[0.6875rem] text-stone">{L(MODE_LABEL[route.mode])}</span>
+                    <span className="mt-0.5 block text-[0.875rem] text-black">{L(route.from)}</span>
+                    <span className="mt-0.5 block text-[0.8125rem] text-ink-mute">{L(route.detail)}</span>
+                  </span>
                 </li>
               ))}
-            </ol>
-          </div>
-        </div>
-      </section>
+            </ul>
+          </Reveal>
 
-      {/* Gallery ---------------------------------------------------------- */}
-      <section className="relative border-t border-ink/10 py-24 md:py-32">
-        <div className="shell-wide">
-          <SectionHeading eyebrow="Gallery" title={dict.common.gallery} />
-          <div className="mt-14">
-            <Gallery items={hotel.gallery.map((src) => ({ src, alt: title }))} closeLabel={dict.common.close} />
-          </div>
-        </div>
-      </section>
-
-      {/* アクセス + map --------------------------------------------------- */}
-      <section id="access" className={`relative border-t border-ink/10 bg-page-2 ${ANCHOR}`}>
-        <div className="grid lg:grid-cols-2">
-          <div className="flex items-center px-(--spacing-gutter) py-20 md:py-28">
-            <div className="w-full max-w-xl">
-              <SectionHeading eyebrow="Access" title={L(S.access)} lead={L(stay.access.lead)} align="left" />
-
-              <Reveal delay={0.12}>
-                <p className={`${LABEL} mt-12`}>{L(S.routes)}</p>
-                <ul className="mt-4 space-y-3">
-                  {stay.access.routes.map((route, i) => (
-                    <li key={i} className="flex items-start gap-4 border border-ink/10 bg-page px-5 py-4">
-                      <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-ink text-washi">
-                        <ModeIcon mode={route.mode} />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block text-[0.625rem] tracking-[0.22em] text-brass uppercase">
-                          {L(MODE_LABEL[route.mode])}
-                        </span>
-                        <span className="mt-1 block text-[0.9rem] text-ink">{L(route.from)}</span>
-                        <span className="mt-0.5 block text-[0.8125rem] text-ink/65">{L(route.detail)}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </Reveal>
-
-              <Reveal delay={0.18}>
-                <dl className="mt-10 divide-y divide-ink/10 border-y border-ink/10">
-                  <Row label={dict.common.address} value={t(hotel.info.address, active)} />
-                  {hotel.info.tel && (
-                    <Row label={dict.common.tel} value={hotel.info.tel} href={`tel:${hotel.info.tel.replace(/-/g, '')}`} />
-                  )}
-                  {hotel.info.fax && <Row label={dict.common.fax} value={hotel.info.fax} />}
-                  <Row label={dict.common.groupDesk} value="080-4097-9552" href="tel:08040979552" />
-                  {stay.access.checkIn && <Row label={L(S.checkIn)} value={stay.access.checkIn} />}
-                  {stay.access.checkOut && <Row label={L(S.checkOut)} value={stay.access.checkOut} />}
-                  {stay.access.parking && <Row label={L(S.parking)} value={L(stay.access.parking)} />}
-                </dl>
-                <p className="mt-6 text-[0.6875rem] tracking-[0.18em] text-stone">{H.credit}</p>
-              </Reveal>
-            </div>
-          </div>
-
-          <MapEmbed
-            src={hotel.mapEmbed}
-            title={title}
-            address={t(hotel.info.address, active)}
-            cta={dict.common.openInMaps}
-            height="h-[24rem] lg:h-full lg:min-h-[34rem]"
-          />
+          <Reveal delay={0.08} className="overflow-hidden rounded-lg shadow-[0_18px_40px_rgba(0,0,0,0.12)]">
+            <MapEmbed
+              src={hotel.mapEmbed}
+              title={title}
+              address={L(hotel.info.address)}
+              cta={dict.common.openInMaps}
+              height="h-[22rem] lg:h-full lg:min-h-[32rem]"
+            />
+          </Reveal>
         </div>
 
         {stay.access.journeys && (
-          <div className="shell-wide border-t border-ink/10 py-16 md:py-20">
-            <Reveal>
-              <p className="type-eyebrow">Route Guide</p>
-              <h3 className="type-mincho mt-3 text-[1.25rem] text-ink md:text-[1.4rem]">{L(S.routeGuide)}</h3>
-            </Reveal>
-            <div className="mt-8 grid gap-5 lg:grid-cols-2">
+          <div className="mx-auto mt-16 max-w-[76.25rem] px-5">
+            <p className="text-[0.8125rem] text-black">{L(S.routeGuide)}</p>
+            <div className="mt-4 grid gap-5 lg:grid-cols-2">
               {stay.access.journeys.map((journey, i) => (
-                <Reveal key={i} delay={(i % 2) * 0.08} className="border border-ink/10 bg-page p-6 md:p-8">
-                  <p className="text-[0.8125rem] tracking-[0.08em] text-brass">{L(journey.title)}</p>
+                <Reveal key={i} delay={(i % 2) * 0.08} className="bg-page-3 p-6 md:p-8">
+                  <p className="text-[0.875rem] font-medium text-black">{L(journey.title)}</p>
                   <ol className="mt-5 flex flex-col md:flex-row md:items-center">
                     {journey.steps.map((step, k) => {
                       const last = k === journey.steps.length - 1;
                       return (
                         <Fragment key={k}>
                           <li
-                            className={`px-3 py-3 text-center text-[0.8125rem] leading-snug md:min-w-[6rem] ${
-                              last ? 'bg-ink text-washi' : 'border border-ink/15 text-ink'
-                            }`}
+                            className={cn(
+                              'px-3 py-3 text-center text-[0.8125rem] leading-snug md:min-w-[6rem]',
+                              last ? 'bg-black text-white' : 'bg-white text-black shadow-[0_2px_8px_rgba(0,0,0,0.06)]',
+                            )}
                           >
                             {L(step.place)}
                           </li>
                           {step.leg && (
                             <li className="relative flex items-center gap-3 py-4 pl-4 md:flex-1 md:flex-col md:gap-1.5 md:px-2 md:py-0">
-                              <span aria-hidden className="absolute inset-y-0 left-[1.75rem] w-px bg-brass/50 md:hidden" />
-                              <span aria-hidden className="absolute inset-x-0 top-3.5 hidden h-px bg-brass/50 md:block" />
-                              <span className="relative flex size-7 shrink-0 items-center justify-center rounded-full bg-brass text-washi">
+                              <span aria-hidden className="absolute inset-y-0 left-[1.75rem] w-px bg-black/25 md:hidden" />
+                              <span aria-hidden className="absolute inset-x-0 top-3.5 hidden h-px bg-black/25 md:block" />
+                              <span className="relative flex size-7 shrink-0 items-center justify-center rounded-full bg-black text-white">
                                 <ModeIcon mode={step.leg.mode} />
                               </span>
-                              <span className="relative text-[0.75rem] leading-snug whitespace-nowrap text-ink/75 md:text-center">
+                              <span className="relative text-[0.75rem] leading-snug whitespace-nowrap text-ink-mute md:text-center">
                                 {L(step.leg.text)}
                               </span>
                             </li>
@@ -450,193 +492,194 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
         )}
       </section>
 
-      {/* 周辺観光 --------------------------------------------------------- */}
-      <section id="sightseeing" className={`relative border-t border-ink/10 py-24 md:py-32 ${ANCHOR}`}>
-        <div className="shell-wide">
-          <SectionHeading eyebrow="Sightseeing" title={L(S.sightseeing)} lead={L(stay.sightseeing.lead)} />
+      {/* 周辺観光 (new) ---------------------------------------------------- */}
+      <SplitPanel>
+        <section id="sightseeing" className={cn('pt-20 pb-24 md:pt-28', ANCHOR)}>
+          <LiveHeading en="SIGHTSEEING" title={L(S.sightseeing)} lead={L(stay.sightseeing.lead)} />
 
-          {pickup && <PickupSpot spot={pickup} active={active} />}
+          <div className="mx-auto max-w-[71rem] px-5 md:px-10">
+            {pickup && <PickupSpot spot={pickup} active={active} />}
 
-          <div className="mt-14 grid border-t border-l border-ink/10 sm:grid-cols-2 lg:grid-cols-3 md:mt-20">
-            {spots.map((spot, i) => (
-              <Reveal key={i} delay={(i % 3) * 0.08} className="border-r border-b border-ink/10 bg-page">
-                <article className="group flex h-full flex-col">
-                  {spot.image ? (
-                    <div className="relative aspect-16/10 w-full overflow-hidden">
-                      <Image
-                        src={spot.image}
-                        alt={L(spot.name)}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover transition-transform duration-[1.4s] ease-(--ease-out-expo) group-hover:scale-[1.05]"
-                      />
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {spots.map((spot, i) => (
+                <Reveal key={i} delay={(i % 3) * 0.06}>
+                  <article className="flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-[0_10px_28px_rgba(0,0,0,0.08)]">
+                    {spot.image ? (
+                      <div className="relative aspect-16/10 w-full">
+                        <Image src={spot.image} alt={L(spot.name)} fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover" />
+                      </div>
+                    ) : (
+                      // No photo supplied yet: a quiet grey panel with the name keeps the grid even.
+                      <div className="flex aspect-16/10 w-full items-center justify-center bg-page-2 p-6 text-center">
+                        <span className="font-[family-name:var(--font-tenor)] text-[0.875rem] tracking-[0.1em] text-stone">
+                          {active === 'ja' ? spot.name.en : spot.name.ja}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex flex-1 flex-col p-6">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-[family-name:var(--font-tenor)] text-[1.5rem] leading-none text-black/30">
+                          {String(i + (pickup ? 2 : 1)).padStart(2, '0')}
+                        </span>
+                        <span className="rounded-full bg-black px-3 py-1 text-[0.6875rem] text-white">{L(spot.time)}</span>
+                      </div>
+                      <h3 className="mt-4 text-[1rem] font-medium tracking-[0.06em] text-black">{L(spot.name)}</h3>
+                      <p className="type-body mt-2 flex-1 text-[0.8125rem]">{L(spot.body)}</p>
+                      <SpotLinks spot={spot} active={active} className="mt-5" />
                     </div>
-                  ) : (
-                    // No photo supplied yet: a light map-grid panel with the name keeps the grid even.
-                    <div className="relative flex aspect-16/10 w-full flex-col items-center justify-center gap-4 bg-page-2 p-7 text-center">
-                      <span
-                        aria-hidden
-                        className="absolute inset-0 opacity-60"
-                        style={{
-                          backgroundImage:
-                            'linear-gradient(var(--color-page-3) 1px, transparent 1px), linear-gradient(90deg, var(--color-page-3) 1px, transparent 1px)',
-                          backgroundSize: '36px 36px',
-                        }}
-                      />
-                      <span aria-hidden className="relative flex size-10 items-center justify-center rounded-full border border-brass/60 bg-page">
-                        <span className="size-2 rounded-full bg-brass" />
-                      </span>
-                      <span className="relative type-display text-[0.9375rem] leading-snug tracking-[0.06em] text-brass">
-                        {active === 'ja' ? spot.name.en : spot.name.ja}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex flex-1 flex-col p-7 md:p-9">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="type-display text-[2rem] leading-none text-brass/70">
-                        {String(i + (pickup ? 2 : 1)).padStart(2, '0')}
-                      </span>
-                      <span className="rounded-full bg-ink px-3.5 py-1.5 text-[0.6875rem] tracking-[0.08em] text-washi">
-                        {L(spot.time)}
-                      </span>
-                    </div>
-                    <h3 className="type-mincho mt-6 text-[1.15rem] leading-snug text-ink md:text-[1.25rem]">{L(spot.name)}</h3>
-                    <p className="type-body mt-3 flex-1 text-[0.875rem]">{L(spot.body)}</p>
-                    <SpotLinks spot={spot} active={active} className="mt-6" />
-                  </div>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-          <Reveal delay={0.1}>
-            <p className="mt-6 text-right text-[0.6875rem] text-stone">
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+            <p className="mt-5 text-right text-[0.6875rem] text-stone">
               {active === 'ja' ? '※所要時間は目安です。交通状況により異なります。' : '* Travel times are approximate and vary with traffic.'}
             </p>
-          </Reveal>
 
-          {stay.sightseeing.events && (
-            <div className="mt-24 md:mt-32">
-              <SectionHeading eyebrow="Seasonal Events" title={L(S.events)} lead={L(S.eventsLead)} />
-              <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 md:mt-16">
-                {stay.sightseeing.events.map((event, i) => {
-                  const season = SEASON[event.season];
-                  return (
-                    <Reveal key={i} delay={(i % 4) * 0.08}>
-                      <article className="flex h-full flex-col">
-                        <span
-                          className="type-mincho mx-auto flex size-11 items-center justify-center rounded-full text-[1.05rem] text-ink"
-                          style={{ backgroundColor: season.tint }}
-                          title={season.en}
-                        >
-                          {season.mark}
-                        </span>
-                        <h4 className="type-mincho mt-4 text-center text-[1.05rem] text-ink">{L(event.name)}</h4>
-                        <dl className="mt-4 space-y-1 px-4 py-3 text-[0.75rem] text-ink/75" style={{ backgroundColor: season.tint }}>
-                          <div>
-                            <dt className="inline">{active === 'ja' ? '開催日／' : 'When: '}</dt>
-                            <dd className="inline">{L(event.when)}</dd>
-                          </div>
-                          <div>
-                            <dt className="inline">{active === 'ja' ? '開催場所／' : 'Where: '}</dt>
-                            <dd className="inline">{L(event.place)}</dd>
-                          </div>
-                        </dl>
-                        <p className="type-body mt-4 flex-1 text-[0.8125rem]">{L(event.body)}</p>
-                        <a
-                          href={mapsUrl(event.query)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-4 inline-flex items-center gap-2 self-start border-b border-ink/25 pb-1 text-[0.75rem] tracking-[0.16em] text-ink transition-colors hover:border-brass hover:text-brass"
-                        >
-                          {L(S.viewMap)} <span aria-hidden>→</span>
-                        </a>
-                      </article>
-                    </Reveal>
-                  );
-                })}
-              </div>
-              <Reveal delay={0.1}>
-                <p className="mt-6 text-right text-[0.6875rem] text-stone">
-                  {active === 'ja' ? '※開催日程は年により変わります。公式情報をご確認ください。' : '* Dates change each year; please check the official information.'}
+            {stay.sightseeing.events && (
+              <div className="mt-24">
+                <LiveHeading en="SEASONAL EVENTS" title={L(S.events)} lead={L(S.eventsLead)} />
+                <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  {stay.sightseeing.events.map((event, i) => {
+                    const season = SEASON[event.season];
+                    return (
+                      <Reveal key={i} delay={(i % 4) * 0.06}>
+                        <article className="flex h-full flex-col bg-white p-6 shadow-[0_10px_28px_rgba(0,0,0,0.06)]">
+                          <span
+                            className="type-mincho flex size-10 items-center justify-center rounded-full border border-black text-[1rem] text-black"
+                            title={season.en}
+                          >
+                            {season.mark}
+                          </span>
+                          <h4 className="mt-4 text-[1rem] font-medium text-black">{L(event.name)}</h4>
+                          <dl className="mt-3 space-y-1 text-[0.75rem] text-ink-mute">
+                            <div>
+                              <dt className="inline">{active === 'ja' ? '開催日／' : 'When: '}</dt>
+                              <dd className="inline">{L(event.when)}</dd>
+                            </div>
+                            <div>
+                              <dt className="inline">{active === 'ja' ? '開催場所／' : 'Where: '}</dt>
+                              <dd className="inline">{L(event.place)}</dd>
+                            </div>
+                          </dl>
+                          <p className="type-body mt-3 flex-1 text-[0.8125rem]">{L(event.body)}</p>
+                          <a
+                            href={mapsUrl(event.query)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-4 self-start border-b border-black text-[0.75rem] text-black hover:opacity-60"
+                          >
+                            {L(S.viewMap)} →
+                          </a>
+                        </article>
+                      </Reveal>
+                    );
+                  })}
+                </div>
+                <p className="mt-5 text-right text-[0.6875rem] text-stone">
+                  {active === 'ja' ? '※開催日程は年により変わります。最新情報をご確認ください。' : '* Dates change each year; please check the official information.'}
                 </p>
-              </Reveal>
-            </div>
-          )}
-        </div>
-      </section>
+              </div>
+            )}
+          </div>
+        </section>
+      </SplitPanel>
 
-      {/* RESERVATION ------------------------------------------------------ */}
-      <section className="relative border-t border-ink/10 bg-page-2 py-20 md:py-28">
-        <div className="shell text-center">
-          <Reveal>
-            <p className="type-eyebrow">Reservation</p>
-          </Reveal>
-          <SplitText
-            as="h2"
-            text={H.bookingTitle}
-            delay={0.06}
-            className="type-display mt-5 text-[clamp(1.4rem,3vw,2.25rem)] text-ink"
-          />
-          <Reveal delay={0.12}>
-            <p className="type-mincho mt-6 text-[1.05rem] text-brass">{H.bookingLead}</p>
-          </Reveal>
-          <Reveal delay={0.18}>
-            <p className="type-body mx-auto mt-5 max-w-2xl whitespace-pre-line">{H.bookingBody}</p>
-          </Reveal>
-          <Reveal delay={0.24} className="mt-10">
-            <ButtonLink href={localePath(active, '/reservation')} variant="brass">
-              {H.bookingCta}
-            </ButtonLink>
-          </Reveal>
+      {/* Group logos band, as at the foot of the live hotel pages ---------- */}
+      <section className="bg-page-3 py-14 text-center">
+        <div className="flex items-center justify-center gap-10 md:gap-16">
+          <Image src="/images/warakutei/logo-yakitori-b.svg" alt="和楽亭 焼鳥居酒屋" width={210} height={90} className="h-16 w-auto md:h-20" />
+          <Image src="/images/warakutei/logo-yakiniku-b.svg" alt="和楽亭 極上和牛" width={210} height={90} className="h-14 w-auto md:h-16" />
         </div>
+        <p className="mt-5 font-[family-name:var(--font-montserrat)] text-[0.6875rem] tracking-[0.08em] text-ink-mute">
+          (C) Premium Hotel Group
+        </p>
       </section>
-
-      <GroupBookingCTA locale={active} title={H.groupHeading} body={dict.home.groupHotel} />
-    </>
+    </div>
   );
 }
 
-function BlockRows({ blocks, active }: { blocks: Hotel['highlights']; active: Locale }) {
+/** The live pages' two-tone panel: #f0f0f0 left half, #f6f6f6 right, 1340px wide. */
+function SplitPanel({ children }: { children: ReactNode }) {
   return (
-    <>
-      {blocks.map((block, i) => (
-        <div
-          key={i}
-          className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-20 ${i % 2 === 1 ? 'lg:[&>*:first-child]:order-2' : ''}`}
-        >
-          <Parallax strength={9} className="aspect-4/5 w-full">
-            <Image src={block.image} alt="" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
-          </Parallax>
+    <div className="mx-auto max-w-[83.75rem] bg-[linear-gradient(90deg,#f0f0f0_50%,#f6f6f6_50%)]">{children}</div>
+  );
+}
 
-          <div>
-            <SplitText
-              as="h3"
-              text={t(block.title, active)}
-              delay={0.06}
-              className="type-display text-[clamp(1.25rem,2.6vw,2rem)] leading-[1.35] text-ink"
-            />
-            <Reveal delay={0.18}>
-              <p className="type-body mt-7 whitespace-pre-line">{t(block.body, active)}</p>
-            </Reveal>
-          </div>
+/** Centred Tenor caps, the short rule, then the Japanese title and lead. */
+function LiveHeading({ en, title, lead }: { en: string; title?: string; lead?: string }) {
+  return (
+    <Reveal className="px-5 text-center">
+      <p className="type-eyebrow whitespace-pre-line">{en}</p>
+      <span className="eyebrow-rule text-black" />
+      {title && (
+        <h2 className="mt-7 text-[clamp(1.5rem,2.8vw,2.5rem)] tracking-[0.06em] text-black md:mt-8">{title}</h2>
+      )}
+      {lead && <p className="type-body mx-auto mt-10 max-w-[46rem] text-left text-[0.8125rem] md:mt-14">{lead}</p>}
+    </Reveal>
+  );
+}
+
+/** Rounded, shadowed photo beside a block of copy; alternates sides. */
+function PhotoRow({
+  image,
+  title,
+  body,
+  flip,
+  portrait,
+}: {
+  image: string;
+  title?: string;
+  body: string;
+  flip?: boolean;
+  portrait?: boolean;
+}) {
+  return (
+    <div className={cn('mx-auto grid max-w-[71rem] items-center gap-10 px-5 md:grid-cols-2 md:gap-14 md:px-10', flip && 'md:[&>*:first-child]:order-2')}>
+      <Reveal className="flex justify-center">
+        <div className={cn('photo-card relative w-full', portrait ? 'aspect-[3/4] max-w-[25rem]' : 'aspect-[537/590] max-w-[33.5rem]')}>
+          <Image src={image} alt="" fill sizes="(max-width: 768px) 100vw, 540px" className="object-cover" />
         </div>
-      ))}
-    </>
+      </Reveal>
+      <Reveal delay={0.08} className={cn(flip ? 'md:pl-10' : 'md:pl-2')}>
+        {title && <h3 className="text-[1rem] leading-[1.9] font-medium tracking-[0.1em] whitespace-pre-line text-black">{title}</h3>}
+        <p className={cn('type-body text-[0.8125rem] whitespace-pre-line', title && 'mt-5')}>{body}</p>
+      </Reveal>
+    </div>
+  );
+}
+
+function Rating({ logo, w, h, label, children }: { logo: string; w: number; h: number; label: string; children: ReactNode }) {
+  return (
+    <Reveal className="flex flex-col items-center">
+      <span className="flex h-12 items-end md:h-16">
+        <Image src={logo} alt="" width={w} height={h} className="h-auto max-h-full w-auto max-w-full" />
+      </span>
+      {label === 'Hotel Rank' && <span className="mt-1 text-[0.625rem] text-ink-mute">Hotel Rank</span>}
+      <span className="mt-2 text-[0.875rem] tracking-[0.12em] md:text-[1rem]">{children}</span>
+    </Reveal>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-[7rem_1fr] gap-4 border-b border-black/15 py-3">
+      <dt className="text-stone">{label}</dt>
+      <dd className="text-black">{value}</dd>
+    </div>
   );
 }
 
 /** 地図で見る + 公式サイト links under a sightseeing spot. */
 function SpotLinks({ spot, active, className = '' }: { spot: Spot; active: Locale; className?: string }) {
-  const link =
-    'inline-flex items-center gap-2 border-b border-ink/25 pb-1 text-[0.75rem] tracking-[0.16em] text-ink transition-colors hover:border-brass hover:text-brass';
+  const link = 'border-b border-black text-[0.75rem] text-black transition-opacity hover:opacity-60';
   return (
-    <div className={`flex flex-wrap gap-x-6 gap-y-3 ${className}`}>
+    <div className={cn('flex flex-wrap gap-x-6 gap-y-3', className)}>
       <a href={mapsUrl(spot.query)} target="_blank" rel="noopener noreferrer" className={link}>
-        {t(S.viewMap, active)} <span aria-hidden>→</span>
+        {t(S.viewMap, active)} →
       </a>
       {spot.site && (
         <a href={spot.site} target="_blank" rel="noopener noreferrer" className={link}>
-          {t(S.officialSite, active)} <span aria-hidden>↗</span>
+          {t(S.officialSite, active)} ↗
         </a>
       )}
     </div>
@@ -646,18 +689,16 @@ function SpotLinks({ spot, active, className = '' }: { spot: Spot; active: Local
 /** The featured "Pick up" spot, shown large above the sightseeing grid. */
 function PickupSpot({ spot, active }: { spot: Spot; active: Locale }) {
   return (
-    <Reveal className="mt-14 md:mt-20">
-      <article className="grid overflow-hidden bg-page-2 lg:grid-cols-[0.9fr_1.1fr]">
+    <Reveal className="mt-14">
+      <article className="grid overflow-hidden rounded-lg bg-white shadow-[0_18px_40px_rgba(0,0,0,0.1)] lg:grid-cols-[0.9fr_1.1fr]">
         <div className="flex flex-col justify-center p-8 md:p-12">
           <p className="type-eyebrow">Pick up</p>
           <div className="mt-4 flex flex-wrap items-center gap-4">
-            <h3 className="type-mincho text-[1.35rem] text-ink md:text-[1.6rem]">{t(spot.name, active)}</h3>
-            <span className="rounded-full bg-ink px-3.5 py-1.5 text-[0.6875rem] tracking-[0.08em] text-washi">
-              {t(spot.time, active)}
-            </span>
+            <h3 className="text-[1.35rem] font-medium tracking-[0.06em] text-black md:text-[1.5rem]">{t(spot.name, active)}</h3>
+            <span className="rounded-full bg-black px-3 py-1 text-[0.6875rem] text-white">{t(spot.time, active)}</span>
           </div>
-          <p className="type-body mt-5 text-[0.9rem]">{t(spot.body, active)}</p>
-          <SpotLinks spot={spot} active={active} className="mt-8" />
+          <p className="type-body mt-5 text-[0.8125rem]">{t(spot.body, active)}</p>
+          <SpotLinks spot={spot} active={active} className="mt-7" />
         </div>
         {spot.image && (
           <div className="relative aspect-16/10 w-full lg:aspect-auto lg:min-h-[22rem]">
@@ -669,24 +710,31 @@ function PickupSpot({ spot, active }: { spot: Spot; active: Locale }) {
   );
 }
 
-function Row({ label, value, href }: { label: string; value: string; href?: string }) {
+function PhoneIcon({ size = 16 }: { size?: number }) {
   return (
-    <div className="grid grid-cols-[7rem_1fr] gap-4 py-4 md:grid-cols-[9rem_1fr]">
-      <dt className="text-[0.6875rem] tracking-[0.2em] text-stone uppercase">{label}</dt>
-      <dd className="text-sm leading-relaxed whitespace-pre-line text-ink/80">
-        {href ? (
-          <a href={href} className="transition-colors hover:text-brass">
-            {value}
-          </a>
-        ) : (
-          value
-        )}
-      </dd>
-    </div>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden className="shrink-0">
+      <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z" />
+    </svg>
   );
 }
 
-/** Line icons for the access routes, drawn at 16px on the ink disc. */
+function FaxIcon() {
+  return (
+    <svg width={17} height={17} viewBox="0 0 24 24" fill="currentColor" aria-hidden className="shrink-0">
+      <path d="M19 8H5a3 3 0 0 0-3 3v6h4v4h12v-4h4v-6a3 3 0 0 0-3-3zm-3 11H8v-5h8v5zm3-7a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm-1-9H6v4h12V3z" />
+    </svg>
+  );
+}
+
+function PinIcon() {
+  return (
+    <svg width={17} height={17} viewBox="0 0 24 24" fill="currentColor" aria-hidden className="mt-0.5 shrink-0">
+      <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
+    </svg>
+  );
+}
+
+/** Line icons for the access routes, drawn at 16px on the black disc. */
 function ModeIcon({ mode }: { mode: RouteMode }) {
   const common = {
     width: 16,

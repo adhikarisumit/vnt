@@ -1,4 +1,13 @@
 VNT renewal (estimate VNT_見積書 2026-10-26: project 1 = VNT vntgroup.co.jp, project 2 = hisano-jp.com)
+
+5 Nov 2026 23:55 - BOSS: design must be the LIVE vntgroup.co.jp design; only add the new items + fixes. Old beige/gold look dropped.
+- Live crawled: _refs\live (16 pages, desk+phone shots, tokens). Live Fuji photos saved in public\images\live\fuji.
+- Tokens (globals.css): white / #f0f0f0 / #f6f6f6, black + #333 text, red #b72929, gold stars, Montserrat for home titles. Preloader + custom cursor removed.
+- Header = live white bar (JP bold links, red outline 施設予約, red お問い合わせ), sticky. Footer = live black 3 columns.
+- Home rebuilt like live; fixes: no "Type Something", photo in empty 商品企画 slot, real photo on Fuji tile.
+- Hotel page = live layout (own header name+stars, inset hero, reserve card, black group box, ratings, ABOUT split grey, MOVIE, WHATS SPECIAL, strip, ホテル情報, logos band) + new 客室/お食事/アクセス/周辺観光/季節の行事 in the same style; header links scroll to them.
+- Boss: do NOT touch other pages (company etc). They only inherit the new colours/header/footer.
+- Checked fuji desk + phone, nagoya desk: no errors, no overflow. tsc clean.
 Existing demo: this Next.js 15 site (rebuild of vntgroup.co.jp, Sept 2026), repo github.com/adhikarisumit/vnt (not pushed since).
 Dev: npm run dev -- -p 3311  -> http://localhost:3311/ja/hotels/fuji
 

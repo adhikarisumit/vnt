@@ -14,8 +14,7 @@ export function Footer({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale);
 
   return (
-    <footer className="relative overflow-hidden border-t border-ink/10 bg-page">
-      <div className="grain absolute inset-0" />
+    <footer className="relative overflow-hidden bg-black text-white">
 
       {/* Extra bottom padding on mobile clears the fixed action bar. */}
       <div className="shell relative pt-20 pb-28 md:pt-24 md:pb-12">
@@ -47,9 +46,9 @@ export function Footer({ locale }: { locale: Locale }) {
               ))}
             </ul>
 
-            <span aria-hidden className="mt-5 block h-px w-full max-w-[15rem] bg-brass/50" />
+            <span aria-hidden className="mt-5 block h-px w-full max-w-[15rem] bg-white/70" />
 
-            <address className="mt-6 text-[0.875rem] leading-[1.75] text-ink/75 not-italic">
+            <address className="mt-6 text-[0.875rem] leading-[1.75] text-white not-italic">
               <p>{site.address.postal}</p>
               {locale === 'ja' ? (
                 <>
@@ -63,13 +62,13 @@ export function Footer({ locale }: { locale: Locale }) {
 
             <dl className="mt-5 space-y-2.5 text-[0.875rem]">
               <ContactRow label={dict.footer.tel}>
-                <a href={`tel:${site.tel.replace(/-/g, '')}`} className="hover:text-brass">
+                <a href={`tel:${site.tel.replace(/-/g, '')}`} className="hover:opacity-70">
                   {site.tel}
                 </a>
               </ContactRow>
               <ContactRow label={dict.footer.fax}>{site.fax}</ContactRow>
               <ContactRow label={dict.footer.email}>
-                <a href={`mailto:${site.email}`} className="hover:text-brass">
+                <a href={`mailto:${site.email}`} className="hover:opacity-70">
                   {site.email}
                 </a>
               </ContactRow>
@@ -77,7 +76,7 @@ export function Footer({ locale }: { locale: Locale }) {
           </Reveal>
         </div>
 
-        <p className="mt-16 border-t border-ink/10 pt-7 text-center text-[0.75rem] tracking-[0.14em] text-stone">
+        <p className="mt-16 text-center text-[0.8125rem] text-white">
           {dict.footer.rights}
         </p>
       </div>
@@ -88,7 +87,7 @@ export function Footer({ locale }: { locale: Locale }) {
 /** Column heading with the short underline the original uses. */
 function Heading({ children }: { children: ReactNode }) {
   return (
-    <h3 className="type-display inline-block border-b border-brass/60 pb-2 text-[0.8125rem] tracking-[0.16em] text-ink uppercase">
+    <h3 className="inline-block border-b border-white/80 px-1 pb-2 text-[0.875rem] text-white uppercase">
       {children}
     </h3>
   );
@@ -108,7 +107,7 @@ function LinkList({ links, locale }: { links: FooterLink[]; locale: Locale }) {
 
 function FooterAnchor({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={href} className="text-[0.875rem] text-ink/75 transition-colors duration-300 hover:text-brass">
+    <Link href={href} className="text-[0.875rem] text-white transition-colors duration-300 hover:opacity-70">
       {children}
     </Link>
   );
@@ -116,7 +115,7 @@ function FooterAnchor({ href, children }: { href: string; children: ReactNode })
 
 function ContactRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex gap-4 text-ink/75">
+    <div className="flex gap-4 text-white">
       <dt className="shrink-0">{label}</dt>
       <dd>{children}</dd>
     </div>

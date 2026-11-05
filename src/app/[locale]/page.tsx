@@ -1,31 +1,39 @@
+import Image from 'next/image';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { HomeHero } from '@/components/home/HomeHero';
 import { BusinessCards } from '@/components/home/BusinessCards';
 import { SupplierCall } from '@/components/sections/SupplierCall';
 import { Reveal } from '@/components/motion/Reveal';
-import { SectionHeading } from '@/components/ui/SectionHeading';
-import { PropertyCard } from '@/components/ui/PropertyCard';
-import { ArrowLink, ButtonLink } from '@/components/ui/ArrowLink';
 
 import { getDictionary } from '@/content/dictionary';
-import { hotels } from '@/content/hotels';
-import { isLocale, localePath, t } from '@/lib/i18n';
+import { isLocale, localePath, type Locale } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
+
+type Strip = { href: string; image: string; name: string; mincho?: boolean };
 
 /**
- * Sections follow the live home page: hero, BUSINESS, HOTEL, FOOD & SHOP,
- * then the supplier call. Group-booking copy is the live site's own.
+ * The live home page, section for section: hero, BUSINESS, HOTEL, FOOD &
+ * SHOP, then the supplier panel. Fixes over the live build: no "Type
+ * Something" placeholder, a photo in the empty 商品企画 slot, and a real
+ * photograph on the FUJI PREMIUM HOTEL tile (live shows a cropped logo).
  */
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const dict = getDictionary(locale);
 
-  // FOOD & SHOP cards as on the live site: 芸者亭, 和楽亭, イケガミストア.
-  const foodCards = [
-    { href: '/dining/geisyatei', image: '/images/geisya/geisya-01.webp', name: { ja: '芸者亭', en: 'Geisha-tei' } },
-    { href: '/dining', image: '/images/warakutei/yakiniku-01.webp', name: { ja: '和楽亭', en: 'Warakutei' } },
-    { href: '/retail', image: '/images/ikegami/store-01.webp', name: { ja: 'イケガミストア', en: 'Ikegami Store' } },
+  const hotelStrip: Strip[] = [
+    { href: '/hotels/fuji', image: '/images/live/fuji/u6.jpg', name: 'FUJI PREMIUM HOTEL' },
+    { href: '/hotels/nagoya', image: '/images/nagoya/castle-01.webp', name: 'NAGOYA PREMIUM HOTEL' },
+    { href: '/hotels/toji', image: '/images/toji/toji-01.webp', name: 'PREMIUM TOJI' },
+  ];
+
+  const foodStrip: Strip[] = [
+    { href: '/dining/geisyatei', image: '/images/geisya/geisya-01.webp', name: locale === 'ja' ? '芸者亭' : 'Geisha-tei', mincho: true },
+    { href: '/dining', image: '/images/warakutei/yakiniku-01.webp', name: locale === 'ja' ? '和楽亭' : 'Warakutei', mincho: true },
+    { href: '/retail', image: '/images/ikegami/store-01.webp', name: locale === 'ja' ? 'イケガミストア' : 'Ikegami Store', mincho: true },
   ];
 
   return (
@@ -36,88 +44,96 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         intro={dict.home.intro}
         cta={dict.home.heroCta}
         ctaHref={localePath(locale, '/contact')}
-        scrollLabel={dict.common.scroll}
       />
 
-      {/* BUSINESS -------------------------------------------------------- */}
-      <section id="business" className="relative py-24 md:py-32">
-        <div className="shell">
-          {/* Same 1220px block as the cards, so the centred heading sits over their middle. */}
-          <div className="mx-auto max-w-[76.25rem]">
-            <SectionHeading eyebrow="01 — Business" title={dict.home.businessTitle} />
-            <div className="mt-16">
-              <BusinessCards locale={locale} viewMore={dict.common.viewMore} />
-            </div>
-          </div>
+      <section id="business" className="px-5 pt-20 pb-24 md:pt-24 md:pb-36">
+        <SectionTitle>BUSINESS</SectionTitle>
+        <div className="mt-12 md:mt-14">
+          <BusinessCards locale={locale} viewMore={dict.common.viewMore} />
         </div>
       </section>
 
-      {/* HOTEL ----------------------------------------------------------- */}
-      <section id="hotel" className="relative overflow-hidden border-t border-ink/10 py-24 md:py-32">
-        <div className="shell-wide">
-          <SectionHeading eyebrow="02 — Hotel" title={dict.home.hotelTitle} />
-
-          <div className="mt-16 grid gap-5 md:grid-cols-3 md:gap-7">
-            {hotels.map((hotel, i) => (
-              <PropertyCard
-                key={hotel.slug}
-                index={i}
-                href={localePath(locale, `/hotels/${hotel.slug}`)}
-                image={hotel.cardImage}
-                name={hotel.name}
-                sub={t(hotel.tagline, locale)}
-                meta={t(hotel.location, locale)}
-                stars={hotel.stars}
-              />
-            ))}
-          </div>
-
-          <Reveal delay={0.15} className="mt-16">
-            <div className="grid gap-8 border border-ink/12 p-8 md:grid-cols-[1.4fr_1fr] md:p-12">
-              <p className="type-body whitespace-pre-line">{dict.home.groupHotel}</p>
-              <div className="flex flex-wrap items-end justify-start gap-4 md:justify-end">
-                <ArrowLink href={localePath(locale, '/hotels')}>{dict.common.viewMore}</ArrowLink>
-                <ButtonLink href={localePath(locale, '/reservation')} variant="outline">
-                  {dict.contact.title}
-                </ButtonLink>
-              </div>
-            </div>
-          </Reveal>
-        </div>
+      <section id="hotel" className="pb-20 md:pb-28">
+        <SectionTitle>HOTEL</SectionTitle>
+        <PhotoStrip items={hotelStrip} locale={locale} />
+        <GroupNote
+          body={dict.home.groupHotel}
+          more={{ href: localePath(locale, '/hotels'), label: dict.common.viewMore }}
+          contact={{ href: localePath(locale, '/reservation'), label: dict.contact.title }}
+        />
       </section>
 
-      {/* FOOD & SHOP ----------------------------------------------------- */}
-      <section id="foodshop" className="relative overflow-hidden border-t border-ink/10 py-24 md:py-32">
-        <div className="shell-wide">
-          <SectionHeading eyebrow="03 — Food & Shop" title={dict.home.diningTitle} />
-
-          <div className="mt-16 grid gap-5 md:grid-cols-3 md:gap-7">
-            {foodCards.map((card, i) => (
-              <PropertyCard
-                key={card.href}
-                index={i}
-                href={localePath(locale, card.href)}
-                image={card.image}
-                name={t(card.name, locale)}
-              />
-            ))}
-          </div>
-
-          <Reveal delay={0.15} className="mt-16">
-            <div className="grid gap-8 border border-ink/12 p-8 md:grid-cols-[1.4fr_1fr] md:p-12">
-              <p className="type-body whitespace-pre-line">{dict.home.groupDining}</p>
-              <div className="flex flex-wrap items-end justify-start gap-4 md:justify-end">
-                <ArrowLink href={localePath(locale, '/dining/geisyatei')}>{dict.common.viewMore}</ArrowLink>
-                <ButtonLink href={localePath(locale, '/contact')} variant="outline">
-                  {dict.contact.title}
-                </ButtonLink>
-              </div>
-            </div>
-          </Reveal>
-        </div>
+      <section id="foodshop" className="pb-8 md:pb-12">
+        <SectionTitle>FOOD &amp; SHOP</SectionTitle>
+        <PhotoStrip items={foodStrip} locale={locale} />
+        <GroupNote
+          body={dict.home.groupDining}
+          more={{ href: localePath(locale, '/dining/geisyatei'), label: dict.common.viewMore }}
+          contact={{ href: localePath(locale, '/contact'), label: dict.contact.title }}
+        />
       </section>
 
       <SupplierCall locale={locale} />
     </>
+  );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <Reveal>
+      <h2 className="type-section text-center text-[clamp(1.9rem,2.3vw,2.25rem)] text-ink-mute">{children}</h2>
+    </Reveal>
+  );
+}
+
+/** Full-bleed row of photos with the name set in the middle, lifted on a soft shadow. */
+function PhotoStrip({ items, locale }: { items: Strip[]; locale: Locale }) {
+  return (
+    <div className="mt-12 grid shadow-[0_24px_40px_-12px_rgba(0,0,0,0.25)] md:mt-14 md:grid-cols-3">
+      {items.map((item) => (
+        <Link
+          key={item.href}
+          href={localePath(locale, item.href)}
+          className="group relative block h-[15rem] overflow-hidden border-white md:h-[min(25vw,22.5rem)] md:border-l first:md:border-l-0"
+        >
+          <Image src={item.image} alt="" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
+          <span className="absolute inset-0 bg-black/25 transition-colors duration-500 group-hover:bg-black/40" />
+          <span
+            className={cn(
+              'absolute inset-0 flex items-center justify-center px-4 text-center text-white [text-shadow:0_1px_8px_rgba(0,0,0,0.4)]',
+              item.mincho
+                ? 'type-mincho text-[clamp(1.4rem,1.7vw,1.6rem)]'
+                : 'font-[family-name:var(--font-tenor)] text-[clamp(1rem,1.25vw,1.2rem)] tracking-[0.12em]',
+            )}
+          >
+            {item.name}
+          </span>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function GroupNote({
+  body,
+  more,
+  contact,
+}: {
+  body: string;
+  more: { href: string; label: string };
+  contact: { href: string; label: string };
+}) {
+  return (
+    <Reveal className="mx-auto mt-10 max-w-[76.25rem] px-5 md:mt-12">
+      <p className="text-[0.875rem] leading-[1.75] whitespace-pre-line text-ink-mute">{body}</p>
+      <div className="mt-6 flex justify-end gap-5">
+        <Link href={more.href} className="btn-pill">
+          {more.label}
+        </Link>
+        <Link href={contact.href} className="btn-pill">
+          {contact.label}
+        </Link>
+      </div>
+    </Reveal>
   );
 }

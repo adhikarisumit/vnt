@@ -9,43 +9,42 @@
    with washi text while the rest of the page stays on paper.
 ------------------------------------------------------------------- */
 @theme {
-  /* Page surfaces */
-  --color-page: #faf8f4;
-  --color-page-2: #f1ece2;
-  --color-page-3: #e7e0d2;
+  /* Taken from the live vntgroup.co.jp (STUDIO) build, measured 5 Nov 2026:
+     white pages, #f0f0f0 / #f6f6f6 split panels, black and #333 text,
+     the VNT red on the header buttons, gold rating stars. */
+  --color-page: #ffffff;
+  --color-page-2: #f0f0f0;
+  --color-page-3: #f6f6f6;
 
-  /* Ink — text on paper, and scrims over photography */
-  --color-ink: #15151a;
-  --color-ink-soft: #24242c;
-  --color-ink-mute: #3a3a44;
+  --color-ink: #000000;
+  --color-ink-soft: #222222;
+  --color-ink-mute: #333333;
 
-  /* Washi — text on top of ink */
-  --color-washi: #f8f5f0;
-  --color-washi-dim: #e8e2d7;
+  --color-washi: #ffffff;
+  --color-washi-dim: #eeeeee;
 
-  --color-stone: #6f6862;
-  --color-stone-dim: #948d85;
+  --color-stone: #666666;
+  --color-stone-dim: #999999;
 
-  /* Brass reads as the accent in both directions; the lit tone is for
-     placement over photography, where the darker one loses its edge. */
-  --color-brass: #8a6a2a;
-  --color-brass-lit: #d9bd7e;
+  /* The old "brass" accent now carries the live site's red; over photography
+     the lit tone is plain white, as the original sets it. */
+  --color-brass: #b72929;
+  --color-brass-lit: #ffffff;
 
-  --color-vermilion: #9c3d2e;
+  --color-vermilion: #b72929;
+  --color-brand: #b72929;
+  --color-star: #e9b949;
 
-  /* The wordmark's own red, taken from the supplied VNT.svg. */
-  --color-brand: #9e2121;
-
-  --font-display: var(--font-tenor), 'Tenor Sans', Georgia, serif;
+  --font-display: var(--font-tenor), 'Tenor Sans', var(--font-noto-sans), 'Noto Sans JP', sans-serif;
   --font-mincho: var(--font-shippori), 'Shippori Mincho', 'Noto Serif JP', serif;
   --font-sans: var(--font-noto-sans), 'Noto Sans JP', system-ui, sans-serif;
+  --font-section: var(--font-montserrat), 'Montserrat', var(--font-noto-sans), sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
 
   --spacing-gutter: clamp(1.25rem, 5vw, 5rem);
 }
-
 @layer base {
   :root {
     color-scheme: light;
@@ -64,7 +63,6 @@
     background-color: var(--color-page);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    font-feature-settings: 'palt' 1;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
@@ -142,55 +140,107 @@
     padding-inline: var(--spacing-gutter);
   }
 
-  /* Display type: EN headings in Tenor Sans, generous tracking. */
+  /* Display type: Latin in Tenor Sans, Japanese falls through to Noto Sans JP,
+     as the live hotel pages set their headings. */
   .type-display {
     font-family: var(--font-display);
     font-weight: 400;
-    letter-spacing: 0.06em;
-    line-height: 1.05;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
   }
 
   .type-mincho {
     font-family: var(--font-mincho);
-    font-weight: 400;
+    font-weight: 500;
     line-height: 1.75;
     letter-spacing: 0.04em;
   }
 
-  .type-eyebrow {
-    font-family: var(--font-display);
-    font-size: 0.6875rem;
-    letter-spacing: 0.34em;
-    text-transform: uppercase;
-    color: var(--color-brass);
+  /* Montserrat light, the home page's BUSINESS / HOTEL / FOOD & SHOP titles. */
+  .type-section {
+    font-family: var(--font-section);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
   }
 
-  /* Eyebrow placed over photography. */
+  /* Small Tenor caps with the short rule beneath (WHATS SPECIAL, ABOUT ...). */
+  .type-eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    letter-spacing: 0.15em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    color: var(--color-ink);
+  }
+
   .type-eyebrow-lit {
     font-family: var(--font-display);
-    font-size: 0.6875rem;
-    letter-spacing: 0.34em;
+    font-size: 0.8125rem;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--color-brass-lit);
+    color: var(--color-washi);
+  }
+
+  .eyebrow-rule {
+    display: block;
+    width: 4.25rem;
+    height: 1px;
+    margin: 1.25rem auto 0;
+    background: currentColor;
   }
 
   .type-body {
     line-height: 2;
-    letter-spacing: 0.03em;
-    color: color-mix(in srgb, var(--color-ink) 74%, transparent);
-    font-size: 0.9375rem;
+    letter-spacing: 0.05em;
+    color: var(--color-ink-mute);
+    font-size: 0.875rem;
   }
 
-  /* Thin brass hairline used as a section divider. */
+  /* Rounded photo with the soft drop shadow the live hotel pages use. */
+  .photo-card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  }
+
+  /* White button with a shadow (お問い合わせフォームへ). */
+  .btn-live {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    color: #000;
+    padding: 0.85rem 1.75rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+    transition: box-shadow 0.3s, transform 0.3s;
+  }
+  .btn-live:hover {
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.24);
+    transform: translateY(-1px);
+  }
+
+  /* Grey pill (詳しく見る / お問い合わせ under the home strips). */
+  .btn-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 6.25rem;
+    border-radius: 999px;
+    background: #eeeeee;
+    color: #333;
+    padding: 0.6rem 1.6rem;
+    font-size: 0.875rem;
+    transition: background 0.3s;
+  }
+  .btn-pill:hover {
+    background: #dddddd;
+  }
   .rule {
     height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      color-mix(in srgb, var(--color-brass) 45%, transparent) 18%,
-      color-mix(in srgb, var(--color-brass) 45%, transparent) 82%,
-      transparent
-    );
+    background: rgba(0, 0, 0, 0.12);
   }
 }
 
@@ -211,7 +261,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.03;
+    opacity: 0;
     mix-blend-mode: multiply;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
@@ -222,7 +272,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.035;
+    opacity: 0;
     mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }

@@ -1,14 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
-import { Noto_Sans_JP, Shippori_Mincho, Tenor_Sans } from 'next/font/google';
+import { Montserrat, Noto_Sans_JP, Shippori_Mincho, Tenor_Sans } from 'next/font/google';
 import '../globals.css';
 
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { MobileActionBar } from '@/components/layout/MobileActionBar';
-import Cursor from '@/components/motion/Cursor';
 import PageTransition from '@/components/motion/PageTransition';
-import Preloader from '@/components/motion/Preloader';
 import SmoothScroll from '@/components/motion/SmoothScroll';
 import { getDictionary } from '@/content/dictionary';
 import { site } from '@/content/site';
@@ -35,12 +33,19 @@ const notoSans = Noto_Sans_JP({
   variable: '--font-noto-sans',
 });
 
+const montserrat = Montserrat({
+  weight: ['300', '400'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-montserrat',
+});
+
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
 export const viewport: Viewport = {
-  themeColor: '#faf8f4',
+  themeColor: '#ffffff',
   width: 'device-width',
   initialScale: 1,
 };
@@ -104,16 +109,14 @@ export default async function LocaleLayout({
   };
 
   return (
-    <html lang={locale} className={`${tenor.variable} ${mincho.variable} ${notoSans.variable}`}>
+    <html lang={locale} className={`${tenor.variable} ${mincho.variable} ${notoSans.variable} ${montserrat.variable}`}>
       <body>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organisation) }}
         />
 
-        <Preloader tagline={t(site.tagline, locale)} />
         <SmoothScroll />
-        <Cursor />
 
         <Header
           locale={locale}

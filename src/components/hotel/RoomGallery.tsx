@@ -36,7 +36,7 @@ export function RoomGallery({ images, alt }: { images: string[]; alt: string }) 
                 aria-label={`${alt} ${i + 1}`}
                 aria-current={i === current}
                 className={`relative block aspect-4/3 w-full overflow-hidden transition-opacity duration-300 ${
-                  i === current ? 'opacity-100 ring-1 ring-brass ring-offset-2 ring-offset-page-2' : 'opacity-60 hover:opacity-100'
+                  i === current ? 'opacity-100 ring-1 ring-black ring-offset-2 ring-offset-page-2' : 'opacity-60 hover:opacity-100'
                 }`}
               >
                 <Image src={src} alt="" fill sizes="12rem" className="object-cover" />
