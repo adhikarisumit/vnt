@@ -1,5 +1,7 @@
 VNT renewal (estimate VNT_見積書 2026-10-26: project 1 = VNT vntgroup.co.jp, project 2 = hisano-jp.com)
 
+5 Nov 2026 23:50 - Boss asked for the live look again; side-by-side check (_refs\cmp.js live vs ours): home matches. Fuji fixes (commit 8634be0): hero dark overlay removed (bright like live), group-booking black box now fixed bottom-right while scrolling (desktop). Boss: do NOT touch the hotel header.
+
 5 Nov 2026 23:55 - BOSS: design must be the LIVE vntgroup.co.jp design; only add the new items + fixes. Old beige/gold look dropped.
 - Live crawled: _refs\live (16 pages, desk+phone shots, tokens). Live Fuji photos saved in public\images\live\fuji.
 - Tokens (globals.css): white / #f0f0f0 / #f6f6f6, black + #333 text, red #b72929, gold stars, Montserrat for home titles. Preloader + custom cursor removed.
