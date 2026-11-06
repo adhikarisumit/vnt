@@ -48,6 +48,7 @@ export function HeroSlider({
           <Image src={src} alt="" fill priority={i === 0} sizes="100vw" className="object-cover" />
         </div>
       ))}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-black/5 to-black/30 md:from-black/15 md:to-black/15" />
       </div>
 
       {/* Hotel name over the photo, as the reference's centred logo. */}

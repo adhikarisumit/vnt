@@ -124,7 +124,7 @@ const stays: Record<Hotel['slug'], HotelStay> = {
       { title: { ja: 'ご朝食', en: 'Breakfast' }, body: { ja: '朝食の有無・内容はご宿泊プランによります', en: 'Depends on your plan' }, image: '/images/live/fuji/about-2.webp' },
       { title: { ja: '無料Wi-Fi', en: 'Free Wi-Fi' }, body: { ja: '館内全域で無料Wi-Fiをご利用いただけます', en: 'Free Wi-Fi throughout the hotel' }, image: '/images/live/fuji/u6.jpg' },
       { title: { ja: '24時間フロント', en: '24-hour front desk' }, body: { ja: '深夜のご到着・早朝のご出発も安心', en: 'Late arrivals and early departures made easy' }, image: '/images/live/fuji/building.webp' },
-      { title: { ja: '駐車場', en: 'Parking' }, body: { ja: 'お車でお越しのお客様へ。詳しくはお問い合わせください', en: 'For guests arriving by car' }, image: '/images/fuji/info-top.webp' },
+      { title: { ja: '駐車場', en: 'Parking' }, body: { ja: 'お車でお越しのお客様へ。\n詳しくはお問い合わせください', en: 'For guests arriving by car' }, image: '/images/fuji/info-top.webp' },
       { title: { ja: '周辺観光の拠点', en: 'A base for sightseeing' }, body: { ja: '河口湖・忍野八海・富士急ハイランドへ車で約10〜15分', en: 'Lake Kawaguchi, Oshino Hakkai and Fuji-Q in 10-15 min' }, image: '/images/live/fuji/u2.jpg' },
     ],
     rooms: {

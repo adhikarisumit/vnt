@@ -297,9 +297,9 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px"
                     className="object-cover opacity-70 transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center text-white [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] sm:px-6">
                     <h3 className="text-[1.35rem] tracking-[0.06em] md:text-[1.6rem]">{L(f.title)}</h3>
-                    <p className="mt-2 text-[0.75rem] leading-[1.7] whitespace-pre-line">{L(f.body)}</p>
+                    <p className="mx-auto mt-2 max-w-[24rem] text-[0.75rem] leading-[1.7] text-pretty whitespace-pre-line">{L(f.body)}</p>
                   </div>
                 </article>
               </Reveal>
@@ -432,9 +432,9 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
                   )}
                 </div>
                 <div className="flex flex-1 flex-col p-3">
-                  <h3 className="text-[0.9375rem] leading-snug font-medium text-black">{L(spot.name)}</h3>
+                  <h3 className="text-[0.9375rem] leading-snug font-medium text-pretty text-black">{L(spot.name)}</h3>
                   <p className="mt-1 text-[0.6875rem] text-stone">{L(S.fromHotel)}{L(spot.time)}</p>
-                  <p className="mt-2 flex-1 text-[0.6875rem] leading-[1.8] text-ink-mute">{L(spot.body)}</p>
+                  <p className="mt-2 flex-1 text-[0.75rem] leading-[1.8] text-pretty text-ink-mute md:text-[0.6875rem]">{L(spot.body)}</p>
                   <p className="mt-2 flex flex-wrap gap-x-3 text-[0.6875rem]">
                     <a href={mapsUrl(spot.query)} target="_blank" rel="noopener noreferrer" className="border-b border-black text-black hover:opacity-60">
                       {L(S.viewMap)}
@@ -469,7 +469,7 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
                       <br />
                       {L(S.where)}{L(event.place)}
                     </p>
-                    <p className="mt-2 flex-1 text-[0.75rem] leading-[1.8] text-ink-mute">{L(event.body)}</p>
+                    <p className="mt-2 flex-1 text-[0.75rem] leading-[1.8] text-pretty text-ink-mute">{L(event.body)}</p>
                     <a href={mapsUrl(event.query)} target="_blank" rel="noopener noreferrer" className="mt-3 self-start border-b border-black text-[0.6875rem] text-black hover:opacity-60">
                       {L(S.viewMap)}
                     </a>
@@ -514,10 +514,10 @@ export default async function HotelPage({ params }: { params: Promise<{ locale: 
       {/* ACCESS banner ---------------------------------------------------- */}
       <section id="access" className={cn('relative overflow-hidden bg-black text-white', ANCHOR)}>
         <Image src={pick(0)} alt="" fill sizes="100vw" className="object-cover opacity-55" />
-        <div className="relative mx-auto max-w-[60rem] px-5 py-20 text-center md:py-28">
+        <div className="relative mx-auto max-w-[60rem] px-5 py-16 text-center md:py-28">
           <p className="font-[family-name:var(--font-tenor)] text-[1.75rem] tracking-[0.2em] md:text-[2.25rem]">ACCESS</p>
           <p className="mt-1 text-[0.8125rem] tracking-[0.15em]">{L(S.accessSub)}</p>
-          <div className="mt-10 space-y-6 text-[clamp(1rem,1.5vw,1.25rem)] leading-[1.8] tracking-[0.04em] [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">
+          <div className="mt-8 space-y-4 text-[0.9375rem] leading-[1.8] tracking-[0.04em] text-pretty [text-shadow:0_1px_8px_rgba(0,0,0,0.6)] sm:text-[clamp(1rem,1.5vw,1.25rem)] md:mt-10 md:space-y-6">
             {stay.access.routes.map((route, i) => (
               <p key={i}>
                 {L(route.from)}より{L(route.detail)}。
