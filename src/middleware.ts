@@ -3,7 +3,7 @@ import { defaultLocale, locales } from '@/lib/i18n';
 
 const PUBLIC_FILE = /\.(.*)$/;
 
-/** Sends every un-prefixed request to a locale, preferring the browser's. */
+/** Sends every un-prefixed request to the (only) locale, /ja. */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -19,11 +19,8 @@ export function middleware(request: NextRequest) {
   const hasLocale = locales.some((l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`));
   if (hasLocale) return NextResponse.next();
 
-  const accept = request.headers.get('accept-language')?.toLowerCase() ?? '';
-  const preferred = accept.startsWith('ja') || accept.includes(',ja') ? 'ja' : accept.startsWith('en') ? 'en' : defaultLocale;
-
   const url = request.nextUrl.clone();
-  url.pathname = `/${preferred}${pathname === '/' ? '' : pathname}`;
+  url.pathname = `/${defaultLocale}${pathname === '/' ? '' : pathname}`;
   return NextResponse.redirect(url);
 }
 

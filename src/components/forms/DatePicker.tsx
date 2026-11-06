@@ -7,7 +7,6 @@ import type { Locale } from '@/lib/i18n';
 
 const WEEKDAYS: Record<Locale, string[]> = {
   ja: ['日', '月', '火', '水', '木', '金', '土'],
-  en: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
 };
 
 function startOfDay(d: Date) {

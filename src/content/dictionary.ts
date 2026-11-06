@@ -263,7 +263,9 @@ const en: Dict = {
   },
 };
 
-const dictionaries: Record<Locale, Dict> = { ja, en };
+// Only Japanese is served (the /en locale was removed 6 Nov 2026); en stays as a note.
+const dictionaries: Record<Locale, Dict> = { ja };
+void en;
 
 export function getDictionary(locale: Locale): Dict {
   return dictionaries[locale] ?? ja;

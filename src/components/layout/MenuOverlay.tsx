@@ -1,12 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'motion/react';
 import { navigation, site } from '@/content/site';
-import { localeLabels, locales, localePath, t, type Locale } from '@/lib/i18n';
+import { localePath, t, type Locale } from '@/lib/i18n';
 
 const featured: Record<string, string> = {
   '/company': '/images/brand/hero-group.webp',
@@ -35,7 +34,6 @@ const row = {
 
 export function MenuOverlay({ locale, onClose }: { locale: Locale; onClose: () => void }) {
   const [hovered, setHovered] = useState<string | null>(null);
-  const pathname = usePathname();
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -46,12 +44,6 @@ export function MenuOverlay({ locale, onClose }: { locale: Locale; onClose: () =
       window.removeEventListener('keydown', onKey);
     };
   }, [onClose]);
-
-  // Same path under the other locale, so switching language keeps your place.
-  const swapLocale = (next: Locale) => {
-    const rest = pathname.replace(/^\/(ja|en)/, '') || '/';
-    return localePath(next, rest);
-  };
 
   const activeImage = hovered ? featured[hovered] : null;
 
@@ -140,7 +132,7 @@ export function MenuOverlay({ locale, onClose }: { locale: Locale; onClose: () =
               <p className="text-xs leading-relaxed text-ink/50">
                 {site.address.postal}
                 <br />
-                {locale === 'ja' ? site.address.ja : site.address.en}
+                {site.address.ja}
               </p>
             </motion.div>
           </div>
@@ -161,19 +153,6 @@ export function MenuOverlay({ locale, onClose }: { locale: Locale; onClose: () =
             </a>
           </div>
 
-          <div className="flex items-center gap-1 text-xs tracking-[0.18em]">
-            {locales.map((code, i) => (
-              <span key={code} className="flex items-center gap-1">
-                {i > 0 && <span className="text-ink/25">/</span>}
-                <Link
-                  href={swapLocale(code)}
-                  className={code === locale ? 'text-brass' : 'text-ink/50 hover:text-ink'}
-                >
-                  {localeLabels[code]}
-                </Link>
-              </span>
-            ))}
-          </div>
         </motion.div>
       </div>
     </motion.div>

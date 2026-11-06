@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // The site is Japanese only: the old /en locale goes to /ja.
+      { source: '/en', destination: '/ja', permanent: true },
+      { source: '/en/:path*', destination: '/ja/:path*', permanent: true },
       // Legacy STUDIO URLs -> new locale-scoped routes.
       { source: '/PremiumHotel', destination: '/ja/hotels', permanent: true },
       { source: '/fuji-premium-hotel', destination: '/ja/hotels/fuji', permanent: true },

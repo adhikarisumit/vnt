@@ -40,7 +40,7 @@ export const reservationSchema = z.object({
   email: z.email().max(200),
   message: z.string().trim().min(1).max(4000),
   agree: z.literal(true),
-  locale: z.enum(['ja', 'en']).default('ja'),
+  locale: z.enum(['ja']).default('ja'),
   // Honeypot — real people never fill this in.
   website: z.string().max(200).optional(),
 });
@@ -55,7 +55,7 @@ export const contactSchema = z.object({
   phone: z.string().trim().min(6).max(40),
   detail: z.string().trim().min(1).max(4000),
   agree: z.literal(true),
-  locale: z.enum(['ja', 'en']).default('ja'),
+  locale: z.enum(['ja']).default('ja'),
   website: z.string().max(200).optional(),
 });
 
