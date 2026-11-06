@@ -37,7 +37,8 @@ export function HeroSlider({
   }, [count, go, index]);
 
   return (
-    <section className="relative h-[70vh] min-h-[26rem] w-full overflow-hidden bg-black md:h-[clamp(34rem,56vw,52rem)]">
+    <section className="relative z-10 h-[70vh] min-h-[26rem] w-full bg-black md:h-[clamp(34rem,56vw,52rem)]">
+      <div className="absolute inset-0 overflow-hidden">
       {images.map((src, i) => (
         <div
           key={src + i}
@@ -47,6 +48,7 @@ export function HeroSlider({
           <Image src={src} alt="" fill priority={i === 0} sizes="100vw" className="object-cover" />
         </div>
       ))}
+      </div>
 
       {/* Hotel name over the photo, as the reference's centred logo. */}
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-5 text-center text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.45)]">
@@ -93,7 +95,7 @@ export function HeroSlider({
       <a
         href={`#${nextId}`}
         aria-label="下へスクロール"
-        className="absolute bottom-0 left-1/2 flex size-12 -translate-x-1/2 translate-y-1/2 items-center justify-center rounded-full border border-black/20 bg-white text-black shadow-[0_6px_18px_rgba(0,0,0,0.12)] transition-transform hover:translate-y-[55%]"
+        className="absolute bottom-0 left-1/2 z-20 flex size-12 -translate-x-1/2 translate-y-1/2 items-center justify-center rounded-full border border-black/20 bg-white text-black shadow-[0_6px_18px_rgba(0,0,0,0.12)] transition-transform hover:translate-y-[55%]"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
           <path d="M6 9l6 6 6-6" />
