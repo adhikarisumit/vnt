@@ -79,7 +79,7 @@ export function HotelHeader({
                     href={`#${link.id}`}
                     aria-current={active === link.id ? 'true' : undefined}
                     className={cn(
-                      'relative block py-1 font-[family-name:var(--font-tenor)] text-[0.75rem] tracking-[0.16em] text-black transition-opacity hover:opacity-60 md:text-[0.8125rem]',
+                      'relative block py-1 font-[family-name:var(--font-sans)] text-[0.8125rem] tracking-[0.08em] text-black transition-opacity hover:opacity-60 md:text-[0.875rem]',
                     )}
                   >
                     {link.label}
@@ -95,9 +95,9 @@ export function HotelHeader({
               <li>
                 <Link
                   href={homeHref}
-                  className="block py-1 font-[family-name:var(--font-tenor)] text-[0.75rem] tracking-[0.16em] text-stone transition-opacity hover:opacity-60 md:text-[0.8125rem]"
+                  className="block py-1 font-[family-name:var(--font-sans)] text-[0.8125rem] tracking-[0.08em] text-stone transition-opacity hover:opacity-60 md:text-[0.875rem]"
                 >
-                  VNT GROUP
+                  VNTグループ
                 </Link>
               </li>
             </ul>
@@ -111,7 +111,7 @@ export function HotelHeader({
         rel="noopener noreferrer"
         className="fixed top-[27%] right-0 z-[120] hidden h-[10.25rem] w-11 items-center justify-center bg-black text-white md:flex"
       >
-        <span className="writing-vertical font-[family-name:var(--font-tenor)] text-[0.6875rem] tracking-[0.15em]">RESERVE</span>
+        <span className="writing-vertical font-[family-name:var(--font-tenor)] text-[0.75rem] tracking-[0.3em]">ご予約</span>
       </a>
     </>
   );

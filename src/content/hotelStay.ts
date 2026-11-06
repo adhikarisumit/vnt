@@ -67,8 +67,22 @@ export type Spot = {
   pickup?: boolean;
 };
 
+/** One card in the サービス内容 row above the room list (reference: goderehotel rooms page). */
+export type ServiceNote = { title: L10n; body: L10n };
+
+/** One card in エリア情報 (周辺施設): hospital, station, roadside station, shops. */
+export type Facility = {
+  kind: L10n;
+  name: L10n;
+  /** Postal address, Japanese only. */
+  address?: string;
+  hours?: L10n;
+  /** Travel time from the hotel, e.g. 車で約5分. */
+  time: L10n;
+};
+
 export type HotelStay = {
-  rooms: { lead: L10n; items: RoomType[] };
+  rooms: { lead: L10n; services?: ServiceNote[]; items: RoomType[] };
   dining: { lead: L10n; items: DiningItem[] };
   access: {
     lead: L10n;
@@ -78,7 +92,7 @@ export type HotelStay = {
     checkOut?: string;
     parking?: L10n;
   };
-  sightseeing: { lead: L10n; spots: Spot[]; events?: SeasonalEvent[] };
+  sightseeing: { lead: L10n; spots: Spot[]; facilities?: Facility[]; events?: SeasonalEvent[] };
 };
 
 const BREAKFAST_NOTE: L10n = {
@@ -89,6 +103,32 @@ const BREAKFAST_NOTE: L10n = {
 const stays: Record<Hotel['slug'], HotelStay> = {
   fuji: {
     rooms: {
+      // DRAFT (reference-style サービス内容 cards). Wi-Fi / front desk from the hotel's booking listings; confirm with the client.
+      services: [
+        {
+          title: { ja: '基本サービス', en: 'Basics' },
+          body: { ja: '館内全域で無料Wi-Fiをご利用いただけます。\nフロントは24時間対応です。', en: 'Free Wi-Fi throughout; 24-hour front desk.' },
+        },
+        {
+          title: { ja: '朝食', en: 'Breakfast' },
+          body: BREAKFAST_NOTE,
+        },
+        {
+          title: { ja: '大浴場', en: 'Large bath' },
+          body: {
+            ja: '天然の麦飯石を使用した人工温泉「麦飯石温泉大浴場」。ご宿泊者専用です。',
+            en: 'The Bakuhanseki stone bath, for staying guests only.',
+          },
+        },
+        {
+          title: { ja: '団体のお客様', en: 'Groups' },
+          body: { ja: '団体予約は団体受付までお電話ください。\n080-4097-9552', en: 'Group bookings: call the group desk, 080-4097-9552.' },
+        },
+        {
+          title: { ja: '交通', en: 'Getting here' },
+          body: { ja: '富士急行線「富士山駅」よりタクシーで約7分。\n中央自動車道「河口湖IC」より車で約10分。', en: 'About 7 min by taxi from Fujisan Station; 10 min by car from Kawaguchiko IC.' },
+        },
+      ],
       lead: {
         ja: '全50室の客室は、窓の向こうに富士山を望む設計。ご夫婦やご友人同士の旅から、ご家族・団体でのご滞在まで、ゆったりとお過ごしいただけます。',
         en: 'All 50 rooms are designed around the view of Mt. Fuji beyond the window — for couples and friends, families and groups alike.',
@@ -217,6 +257,27 @@ const stays: Record<Hotel['slug'], HotelStay> = {
       ],
     },
     sightseeing: {
+      // DRAFT エリア情報: public facilities only. Convenience store / supermarket / drugstore / laundry entries need the client's picks.
+      facilities: [
+        {
+          kind: { ja: '病院', en: 'Hospital' },
+          name: { ja: '富士吉田市立病院', en: 'Fujiyoshida Municipal Hospital' },
+          address: '〒403-0005 山梨県富士吉田市上吉田東7丁目11-1',
+          time: { ja: '車で約5分', en: 'About 5 min by car' },
+        },
+        {
+          kind: { ja: '駅・ショッピング', en: 'Station and shopping' },
+          name: { ja: '富士山駅（富士急行線）・Q-STA', en: 'Fujisan Station (Fujikyu Line) and Q-STA' },
+          address: '〒403-0012 山梨県富士吉田市上吉田2丁目5-1',
+          time: { ja: 'タクシーで約7分', en: 'About 7 min by taxi' },
+        },
+        {
+          kind: { ja: '道の駅', en: 'Roadside station' },
+          name: { ja: '道の駅 富士吉田', en: 'Michi-no-Eki Fujiyoshida' },
+          address: '〒403-0006 山梨県富士吉田市新屋1936-6',
+          time: { ja: '車で約10分', en: 'About 10 min by car' },
+        },
+      ],
       lead: {
         ja: '富士山の麓ならではの名所が、ホテルから車でわずかな距離に。四季折々の富士山を巡る旅の拠点にどうぞ。',
         en: 'Sights only the foot of Mt. Fuji can offer, a short drive from the hotel — a base for exploring Mt. Fuji through the seasons.',
