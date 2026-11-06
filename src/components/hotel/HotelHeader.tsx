@@ -8,36 +8,39 @@ import { cn } from '@/lib/utils';
 export type HotelNavLink = { id: string; label: string };
 
 /**
- * The live hotel pages' own header: hotel name in Tenor caps with gold stars
- * on the left, spaced caps links on the right (live: TOP / ABOUT /
- * SPECIALITY). It stays pinned here and carries the new 客室 / お食事 /
- * アクセス / 周辺観光 sections, with the current one underlined. The black
- * RESERVE tab on the right edge is the live page's too.
+ * The reference hotel site's masthead: the hotel's wordmark centred on
+ * white under the slideshow, then one centred row of small Japanese links
+ * (予約する first, in colour), ruled underneath. The link row pins to the
+ * top while the page scrolls and underlines the current section. On phones
+ * it folds into a メニュー toggle.
  */
 export function HotelHeader({
   name,
+  nameJa,
   stars,
   links,
   reserveHref,
+  contactHref,
   homeHref,
 }: {
   name: string;
+  nameJa: string;
   stars: number;
   links: HotelNavLink[];
   reserveHref: string;
+  contactHref: string;
   homeHref: string;
 }) {
   const [active, setActive] = useState<string | null>(null);
-  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const targets = links.map((l) => document.getElementById(l.id)).filter(Boolean) as HTMLElement[];
     let frame = 0;
     const update = () => {
       frame = 0;
-      setScrolled(window.scrollY > 8);
       let current: string | null = null;
-      for (const el of targets) if (el.getBoundingClientRect().top <= 160) current = el.id;
+      for (const el of targets) if (el.getBoundingClientRect().top <= 120) current = el.id;
       setActive(current);
     };
     const onScroll = () => {
@@ -53,66 +56,75 @@ export function HotelHeader({
     };
   }, [links]);
 
+  const linkClass =
+    'relative block py-2 text-[0.8125rem] tracking-[0.06em] text-ink-mute transition-colors hover:text-black md:py-3';
+
   return (
     <>
-      <header
-        className={cn(
-          'sticky top-0 z-[130] bg-white transition-shadow duration-300',
-          scrolled && 'shadow-[0_2px_12px_rgba(0,0,0,0.08)]',
-        )}
-      >
-        <div className="flex flex-col gap-3 px-5 pt-5 pb-3 md:h-[5.5rem] md:flex-row md:items-center md:justify-between md:px-[6.25%] md:py-0 lg:h-[7.5rem]">
-          <a href="#top" className="block w-fit text-center">
-            <span className="block font-[family-name:var(--font-tenor)] text-[1.05rem] tracking-[0.14em] text-black md:text-[1.2rem]">
-              {name}
-            </span>
-            <span className="block text-[0.95rem] leading-none tracking-[0.18em] text-star md:text-[1.05rem]">
-              {'★'.repeat(stars)}
-            </span>
+      {/* Wordmark block, white, centred. */}
+      <div className="bg-white px-5 pt-16 pb-8 text-center md:pt-24 md:pb-10">
+        <a href="#top" className="inline-block">
+          <span className="block font-[family-name:var(--font-tenor)] text-[clamp(1.5rem,3vw,2.4rem)] tracking-[0.22em] text-black">
+            {name}
+          </span>
+          <span className="mt-1 block text-[1rem] tracking-[0.3em] text-star">{'★'.repeat(stars)}</span>
+          <span className="mt-2 block text-[0.75rem] tracking-[0.3em] text-stone">{nameJa}</span>
+        </a>
+      </div>
+
+      <header className="sticky top-0 z-[130] border-y border-black/10 bg-white/95 backdrop-blur-sm">
+        <div className="flex items-center justify-between px-5 md:hidden">
+          <a href={reserveHref} target="_blank" rel="noopener noreferrer" className="py-3 text-[0.8125rem] font-medium text-brass">
+            予約する
           </a>
-
-          <nav aria-label="Page sections" className="-mx-5 overflow-x-auto px-5 md:mx-0 md:px-0">
-            <ul className="flex gap-6 whitespace-nowrap md:gap-8 xl:gap-12">
-              {links.map((link) => (
-                <li key={link.id}>
-                  <a
-                    href={`#${link.id}`}
-                    aria-current={active === link.id ? 'true' : undefined}
-                    className={cn(
-                      'relative block py-1 font-[family-name:var(--font-sans)] text-[0.8125rem] tracking-[0.08em] text-black transition-opacity hover:opacity-60 md:text-[0.875rem]',
-                    )}
-                  >
-                    {link.label}
-                    <span
-                      className={cn(
-                        'absolute inset-x-0 -bottom-0.5 h-px origin-center bg-black transition-transform duration-300',
-                        active === link.id ? 'scale-x-100' : 'scale-x-0',
-                      )}
-                    />
-                  </a>
-                </li>
-              ))}
-              <li>
-                <Link
-                  href={homeHref}
-                  className="block py-1 font-[family-name:var(--font-sans)] text-[0.8125rem] tracking-[0.08em] text-stone transition-opacity hover:opacity-60 md:text-[0.875rem]"
-                >
-                  VNTグループ
-                </Link>
-              </li>
-            </ul>
-          </nav>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            className="py-3 text-[0.8125rem] tracking-[0.1em] text-black"
+          >
+            {open ? '閉じる' : 'メニュー'}
+          </button>
         </div>
-      </header>
 
-      <a
-        href={reserveHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed top-[27%] right-0 z-[120] hidden h-[10.25rem] w-11 items-center justify-center bg-black text-white md:flex"
-      >
-        <span className="writing-vertical font-[family-name:var(--font-tenor)] text-[0.75rem] tracking-[0.3em]">ご予約</span>
-      </a>
+        <nav aria-label="Page sections" className={cn('px-5', open ? 'block' : 'hidden md:block')}>
+          <ul className="flex flex-col items-center md:flex-row md:justify-center md:gap-7 lg:gap-9">
+            <li className="hidden md:block">
+              <a href={reserveHref} target="_blank" rel="noopener noreferrer" className={cn(linkClass, 'font-medium text-brass hover:text-brass')}>
+                予約する
+              </a>
+            </li>
+            {links.map((link) => (
+              <li key={link.id}>
+                <a
+                  href={`#${link.id}`}
+                  onClick={() => setOpen(false)}
+                  aria-current={active === link.id ? 'true' : undefined}
+                  className={cn(linkClass, active === link.id && 'text-black')}
+                >
+                  {link.label}
+                  <span
+                    className={cn(
+                      'absolute inset-x-0 bottom-1 hidden h-px origin-center bg-black transition-transform duration-300 md:block',
+                      active === link.id ? 'scale-x-100' : 'scale-x-0',
+                    )}
+                  />
+                </a>
+              </li>
+            ))}
+            <li>
+              <Link href={contactHref} className={linkClass}>
+                お問い合わせ
+              </Link>
+            </li>
+            <li>
+              <Link href={homeHref} className={cn(linkClass, 'text-stone')}>
+                VNTグループ
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      </header>
     </>
   );
 }

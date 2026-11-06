@@ -81,7 +81,16 @@ export type Facility = {
   time: L10n;
 };
 
+/** One of the photo cards in the "8つの魅力" grid (reference: goderehotel's 8つの施設). */
+export type Feature = { title: L10n; body: L10n; image: string };
+
 export type HotelStay = {
+  /** Slideshow photos for the full-bleed hero; falls back to the hotel's gallery. */
+  heroSlides?: string[];
+  /** Photo cards under ホテルの魅力; derived from services + special blocks when absent. */
+  features?: Feature[];
+  /** Photo strips: inside the hotel / around the hotel. */
+  scenery?: { inside: string[]; around: string[] };
   rooms: { lead: L10n; services?: ServiceNote[]; items: RoomType[] };
   dining: { lead: L10n; items: DiningItem[] };
   access: {
@@ -102,6 +111,22 @@ const BREAKFAST_NOTE: L10n = {
 
 const stays: Record<Hotel['slug'], HotelStay> = {
   fuji: {
+    heroSlides: ['/images/live/fuji/u6.jpg', '/images/fuji/fuji-03.webp', '/images/live/fuji/u2.jpg'],
+    scenery: {
+      inside: ['/images/fuji/fuji-01.webp', '/images/fuji/fuji-02.webp', '/images/fuji/onsen-01.webp', '/images/live/fuji/about-2.webp', '/images/live/fuji/about-1.webp', '/images/fuji/info-top.webp'],
+      around: ['/images/live/fuji/u6.jpg', '/images/live/fuji/u3.jpg', '/images/live/fuji/u2.jpg', '/images/live/fuji/u4.jpg', '/images/live/fuji/u5.jpg', '/images/live/fuji/u1.jpg'],
+    },
+    // DRAFT: parking / front-desk hours / breakfast to be confirmed by the client.
+    features: [
+      { title: { ja: '富士山ビュー客室', en: 'Mt. Fuji view rooms' }, body: { ja: '全50室から、四季折々の富士山を望む', en: 'Mt. Fuji from all 50 rooms, in every season' }, image: '/images/fuji/fuji-01.webp' },
+      { title: { ja: '麦飯石温泉大浴場', en: 'Bakuhanseki stone bath' }, body: { ja: '天然の麦飯石を使用した人工温泉。ご宿泊者専用', en: 'Hot-spring style bath for staying guests only' }, image: '/images/fuji/onsen-01.webp' },
+      { title: { ja: '団体・グループ歓迎', en: 'Groups welcome' }, body: { ja: '研修・社員旅行・ツアーに。団体受付 080-4097-9552', en: 'Training trips, company outings and tours' }, image: '/images/live/fuji/u5.jpg' },
+      { title: { ja: 'ご朝食', en: 'Breakfast' }, body: { ja: '朝食の有無・内容はご宿泊プランによります', en: 'Depends on your plan' }, image: '/images/live/fuji/about-2.webp' },
+      { title: { ja: '無料Wi-Fi', en: 'Free Wi-Fi' }, body: { ja: '館内全域で無料Wi-Fiをご利用いただけます', en: 'Free Wi-Fi throughout the hotel' }, image: '/images/live/fuji/u6.jpg' },
+      { title: { ja: '24時間フロント', en: '24-hour front desk' }, body: { ja: '深夜のご到着・早朝のご出発も安心', en: 'Late arrivals and early departures made easy' }, image: '/images/live/fuji/building.webp' },
+      { title: { ja: '駐車場', en: 'Parking' }, body: { ja: 'お車でお越しのお客様へ。詳しくはお問い合わせください', en: 'For guests arriving by car' }, image: '/images/fuji/info-top.webp' },
+      { title: { ja: '周辺観光の拠点', en: 'A base for sightseeing' }, body: { ja: '河口湖・忍野八海・富士急ハイランドへ車で約10〜15分', en: 'Lake Kawaguchi, Oshino Hakkai and Fuji-Q in 10-15 min' }, image: '/images/live/fuji/u2.jpg' },
+    ],
     rooms: {
       // DRAFT (reference-style サービス内容 cards). Wi-Fi / front desk from the hotel's booking listings; confirm with the client.
       services: [

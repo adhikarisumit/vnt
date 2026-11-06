@@ -292,3 +292,13 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Endless photo strip on the hotel pages (PhotoMarquee). */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
