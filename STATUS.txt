@@ -26,3 +26,12 @@ NEXT: items 5-7 (芸者亭 / 和楽亭 / イケガミストア layout + photos),
 OPEN: estimate says static pages without CMS; this demo is Next.js (forms need a server). Decide hosting/static export with Boss/client.
 
 3 Nov 2026 19:30 - BOSS: do NOT replace vntgroup.co.jp; ADD the estimate items to the existing live site. Live site = STUDIO (studio.design, no-code). Work must happen in the client's STUDIO editor (need invite/login). The Next.js hotel template here = reference/prototype only.
+
+
+6 Nov 2026 18:55 - BOSS DECISION: the renewal is done IN CODE (this Next.js site), NOT via STUDIO editor access. Forget STUDIO.
+- Task: finish pages one by one, home ("first page") first. Home now COMPLETE and checked vs live (_refs\home_check.js: desk 1440 + iPhone 13, console errors, overflow, broken images; _refs\cmp.js live vs ours):
+  desktop = live 1:1 (hero, BUSINESS 6 cards, HOTEL strip + group note, FOOD & SHOP strip + note, supplier panel, footer).
+  phone fixed: hero title one centred line, English + button centred, intro left in flow (was overlapping the button); mobile action bar hidden on home (live has none).
+  /en home: no errors. All home links return 200. tsc clean. Commit on top of 587f48f.
+- Playwright for the check scripts: set NODE_PATH=F:\Orion\Business\DigiHub\theme\_mobile_check\node_modules (not installed in this repo).
+- NEXT: hotel pages (already v2), then dining / retail / company / contact / reservation pages one by one vs live + estimate items 5-11 (need client copy/photos).
