@@ -25,3 +25,5 @@ next-env.d.ts
 
 _refs/
 _live_ref/
+
+dev.log

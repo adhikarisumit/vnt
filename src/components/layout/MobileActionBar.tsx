@@ -11,6 +11,10 @@ import { localePath, type Locale } from '@/lib/i18n';
  * Phone and reservation stay one thumb away on small screens, where the
  * header's desktop CTAs are hidden. Slides in once the hero is behind you,
  * and stays out of the way on the reservation form itself.
+ *
+ * Not shown on the home page: the live vntgroup.co.jp home has no such bar
+ * (the home page is a 1:1 match of live), it only helps on the hotel /
+ * dining pages where a group booking is the goal.
  */
 export function MobileActionBar({
   locale,
@@ -25,7 +29,8 @@ export function MobileActionBar({
 
   useMotionValueEvent(scrollY, 'change', (y) => setShown(y > 520));
 
-  if (pathname.endsWith('/reservation')) return null;
+  const isHome = /^\/(ja|en)\/?$/.test(pathname) || pathname === '/';
+  if (isHome || pathname.endsWith('/reservation')) return null;
 
   return (
     <motion.div
