@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
-import { Montserrat, Noto_Sans_JP, Shippori_Mincho, Tenor_Sans } from 'next/font/google';
 import '../globals.css';
 
 import { Header } from '@/components/layout/Header';
@@ -12,34 +11,14 @@ import { getDictionary } from '@/content/dictionary';
 import { site } from '@/content/site';
 import { isLocale, locales, t, type Locale } from '@/lib/i18n';
 
-const tenor = Tenor_Sans({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-tenor',
-});
-
-const mincho = Shippori_Mincho({
-  weight: ['400', '500', '600'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-shippori',
-});
-
-const notoSans = Noto_Sans_JP({
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-noto-sans',
-});
-
-const montserrat = Montserrat({
-  weight: ['300', '400'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-montserrat',
-});
-
+/**
+ * Fonts come from Google Fonts at runtime (same as the live STUDIO site):
+ * a build-time fetch through next/font/google crashes on Vercel's build
+ * machines (Google answers there with extension-less font URLs). The CSS
+ * variables are set in globals.css.
+ */
+const GOOGLE_FONTS_CSS =
+  'https://fonts.googleapis.com/css2?family=Tenor+Sans&family=Shippori+Mincho:wght@400;500;600&family=Noto+Sans+JP:wght@300;400;500;700&family=Montserrat:wght@300;400&display=swap';
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
@@ -109,7 +88,12 @@ export default async function LocaleLayout({
   };
 
   return (
-    <html lang={locale} className={`${tenor.variable} ${mincho.variable} ${notoSans.variable} ${montserrat.variable}`}>
+    <html lang={locale}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="stylesheet" href={GOOGLE_FONTS_CSS} />
+      </head>
       <body>
         <script
           type="application/ld+json"

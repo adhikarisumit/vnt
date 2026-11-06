@@ -27,3 +27,4 @@ _refs/
 _live_ref/
 
 dev.log
+.vercel

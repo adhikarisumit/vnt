@@ -35,3 +35,5 @@ OPEN: estimate says static pages without CMS; this demo is Next.js (forms need a
   /en home: no errors. All home links return 200. tsc clean. Commit on top of 587f48f.
 - Playwright for the check scripts: set NODE_PATH=F:\Orion\Business\DigiHub\theme\_mobile_check\node_modules (not installed in this repo).
 - NEXT: hotel pages (already v2), then dining / retail / company / contact / reservation pages one by one vs live + estimate items 5-11 (need client copy/photos).
+
+6 Nov 2026 19:05 - Footer matched to live (Boss screenshot at ~760px): 3 columns from sm (640px), heading underline tight, FOOD & SHOP right under Premium Toji, rule under 会社概要, copyright dim. Checked 760 + 390 (_refs\footer_check.js). Commit.

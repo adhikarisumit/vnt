@@ -35,6 +35,11 @@
   --color-brand: #b72929;
   --color-star: #e9b949;
 
+  /* Google Fonts loaded by <link> in layout.tsx (no build-time fetch). */
+  --font-tenor: 'Tenor Sans';
+  --font-shippori: 'Shippori Mincho';
+  --font-noto-sans: 'Noto Sans JP';
+  --font-montserrat: 'Montserrat';
   --font-display: var(--font-tenor), 'Tenor Sans', var(--font-noto-sans), 'Noto Sans JP', sans-serif;
   --font-mincho: var(--font-shippori), 'Shippori Mincho', 'Noto Serif JP', serif;
   --font-sans: var(--font-noto-sans), 'Noto Sans JP', system-ui, sans-serif;
